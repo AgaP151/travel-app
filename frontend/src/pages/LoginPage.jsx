@@ -1,9 +1,38 @@
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import ThemeSwitcher from "../components/ThemeSwitcher";
+import { useState } from "react";
 
 function LoginPage() {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState("");
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+
+    setFormData((currentData) => ({
+      ...currentData,
+      [name]: value,
+    }));
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    if (!formData.email || !formData.password) {
+      setError(t("auth.fillAllFields"));
+      return;
+    }
+
+    setError("");
+    console.log("Login form data:", formData);
+  }
   return (
     <main className="auth-page">
         <div className="auth-actions">
@@ -22,16 +51,29 @@ function LoginPage() {
           <h1>{t("auth.loginTitle")}</h1>
           <p className="auth-subtitle">{t("auth.loginSubtitle")}</p>
 
-          <form>
+{error && <p className="auth-error">{error}</p>}
+         <form onSubmit={handleSubmit}>
             <label>
               {t("auth.email")}
 
-              <input type="email" placeholder="you@example.com" />
+              <input
+  type="email"
+  name="email"
+  value={formData.email}
+  onChange={handleChange}
+  placeholder="your@example.com"
+/>
             </label>
 
             <label>
               {t("auth.password")}
-              <input type="password" placeholder="••••••••" />
+              <input
+  type="password"
+  name="password"
+  value={formData.password}
+  onChange={handleChange}
+  placeholder="••••••••"
+/>
             </label>
 
             <button type="submit">{t("auth.loginButton")}</button>

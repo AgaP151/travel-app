@@ -8,6 +8,7 @@ i18n.use(initReactI18next).init({
         auth: {
           loginTitle: "Welcome back",
           loginSubtitle: "Log in to continue planning your trip.",
+          fillAllFields: "Please fill in all fields.",
           email: "Email",
           password: "Password",
           loginButton: "Log in",
@@ -27,6 +28,7 @@ i18n.use(initReactI18next).init({
         auth: {
           loginTitle: "Witaj ponownie",
           loginSubtitle: "Zaloguj się, aby kontynuować planowanie podróży.",
+          fillAllFields: "Uzupełnij wszystkie pola.",
           email: "Email",
           password: "Hasło",
           loginButton: "Zaloguj się",

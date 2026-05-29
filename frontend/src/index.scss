@@ -1,5 +1,3 @@
-@import "tailwindcss";
-
 * {
   box-sizing: border-box;
 }
@@ -166,13 +164,19 @@ color: var(--color-primary);
     padding: 36px 24px;
   }
 }
-.language-switcher {
+.auth-actions {
   position: absolute;
   top: 24px;
   right: 32px;
   display: flex;
-  gap: 8px;
+  gap: 10px;
   z-index: 10;
+  align-items: center;
+}
+
+.language-switcher {
+  display: flex;
+  gap: 8px;
 
   button {
     border: 1px solid var(--color-border);
@@ -188,4 +192,42 @@ color: var(--color-primary);
     border-color: var(--color-primary);
     color: var(--color-primary);
   }
+}
+
+.theme-toggle {
+  width: 64px;
+  height: 34px;
+  position: relative;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  border-radius: 999px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.theme-toggle__thumb {
+  position: absolute;
+  top: 1.5px;
+  left: 3px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+  line-height: 0;
+  padding-bottom: 2px;
+  transition: transform 0.25s ease;
+}
+
+.theme-toggle--light .theme-toggle__thumb {
+  transform: translateX(0);
+}
+
+.theme-toggle--dark .theme-toggle__thumb {
+  transform: translateX(27px);
 }

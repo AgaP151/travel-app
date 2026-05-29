@@ -1,12 +1,13 @@
 package pl.exploreapp.backend.controllers;
 
-import pl.exploreapp.backend.models.Trip;
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.List;
+import pl.exploreapp.backend.models.Trip;
 
 @RestController
 @RequestMapping("/api/trips")

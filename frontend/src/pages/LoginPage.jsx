@@ -1,6 +1,11 @@
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+
 function LoginPage() {
+    const { t } = useTranslation();
   return (
     <main className="auth-page">
+        <LanguageSwitcher />
       <section className="auth-card">
         <div className="auth-image">
           <div className="auth-image-overlay">
@@ -10,25 +15,26 @@ function LoginPage() {
         </div>
 
         <div className="auth-form">
-          <h1>Welcome back</h1>
-          <p className="auth-subtitle">Log in to continue planning your trip.</p>
+          <h1>{t("auth.loginTitle")}</h1>
+          <p className="auth-subtitle">{t("auth.loginSubtitle")}</p>
 
           <form>
             <label>
-              Email
+              {t("auth.email")}
+
               <input type="email" placeholder="you@example.com" />
             </label>
 
             <label>
-              Password
+              {t("auth.password")}
               <input type="password" placeholder="••••••••" />
             </label>
 
-            <button type="submit">Log in</button>
+            <button type="submit">{t("auth.loginButton")}</button>
           </form>
 
           <p className="auth-switch">
-            Don&apos;t have an account? <a href="/register">Create one</a>
+            {t("auth.noAccount")} <a href="/register">{t("auth.createOne")}</a>
           </p>
         </div>
       </section>

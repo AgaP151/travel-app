@@ -1,11 +1,15 @@
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import ThemeSwitcher from "../components/ThemeSwitcher";
 
 function LoginPage() {
     const { t } = useTranslation();
   return (
     <main className="auth-page">
-        <LanguageSwitcher />
+        <div className="auth-actions">
+  <ThemeSwitcher />
+  <LanguageSwitcher />
+</div>
       <section className="auth-card">
         <div className="auth-image">
           <div className="auth-image-overlay">

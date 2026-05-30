@@ -3,10 +3,11 @@ import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import ThemeSwitcher from "../components/ThemeSwitcher";
 import { loginUser } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const { t } = useTranslation();
-
+const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -38,6 +39,7 @@ function LoginPage() {
     const response = await loginUser(formData);
     console.log("Login response:", response);
     setSuccessMessage(response.message);
+    navigate("/dashboard");
   }
 
   return (

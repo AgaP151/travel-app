@@ -7,6 +7,7 @@ import pl.exploreapp.backend.dto.AuthResponse;
 import pl.exploreapp.backend.dto.RegisterRequest;
 import pl.exploreapp.backend.models.User;
 import pl.exploreapp.backend.repositories.UserRepository;
+import pl.exploreapp.backend.dto.LoginRequest;
 
 @Service
 public class AuthService {
@@ -34,4 +35,10 @@ private final PasswordEncoder passwordEncoder;
 
         return new AuthResponse("Confirmation email has been sent.");
     }
+    public AuthResponse login(LoginRequest request) {
+    return userRepository.findByEmail(request.getEmail())
+            .filter(user -> passwordEncoder.matches(request.getPassword(), user.getPasswordHash()))
+            .map(user -> new AuthResponse("Login successful."))
+            .orElse(new AuthResponse("Invalid email or password."));
+}
 }

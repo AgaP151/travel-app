@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import ThemeSwitcher from "../components/ThemeSwitcher";
 import { useState } from "react";
+import { registerUser } from "../services/authService";
 
 function RegisterPage() {
   const { t } = useTranslation();
@@ -12,6 +13,7 @@ const [formData, setFormData] = useState({
 });
 
 const [error, setError] = useState("");
+const [successMessage, setSuccessMessage] = useState("");
 
 function handleChange(event) {
   const { name, value } = event.target;
@@ -21,7 +23,7 @@ function handleChange(event) {
     [name]: value,
   }));
 }
-function handleSubmit(event) {
+async function handleSubmit(event) {
   event.preventDefault();
 
   if (!formData.name || !formData.email || !formData.password) {
@@ -30,7 +32,10 @@ function handleSubmit(event) {
   }
 
   setError("");
-  console.log("Register form data:", formData);
+
+  const response = await registerUser(formData);
+  console.log("Register response:", response);
+  setSuccessMessage(response.message);
 }
   return (
     <main className="auth-page">
@@ -50,6 +55,8 @@ function handleSubmit(event) {
           <h1>{t("auth.registerTitle")}</h1>
           <p className="auth-subtitle">{t("auth.registerSubtitle")}</p>
 {error && <p className="auth-error">{error}</p>}
+
+{successMessage && <p className="auth-success">{successMessage}</p>}
       <form onSubmit={handleSubmit}>
             <label>
               {t("auth.name")}

@@ -57,68 +57,82 @@ if (
   alert("Could not add trip.");
 }
 }
-  return (
-    <main>
-      <h1>Dashboard</h1>
-      <p>You are logged in.</p>
-      <section className="dashboard-card">
-  <h2>Add new trip</h2>
+ return (
+  <main className="dashboard-page">
+    <section className="dashboard-hero">
+      <p className="dashboard-hero__subtitle">Discover amazing places</p>
+      <h1>
+        Where to <span>next?</span>
+      </h1>
+      <p>Plan your next journey and manage your trips.</p>
+    </section>
 
-  <form className="trip-form" onSubmit={handleAddTrip}>
-    <input
-      type="text"
-      placeholder="Title"
-      value={newTrip.title}
-      onChange={(e) => setNewTrip({ ...newTrip, title: e.target.value })}
-    />
+    <section className="dashboard-card">
+      <h2>Add new trip</h2>
 
-    <input
-      type="text"
-      placeholder="Destination"
-      value={newTrip.destination}
-      onChange={(e) =>
-        setNewTrip({ ...newTrip, destination: e.target.value })
-      }
-    />
+      <form className="trip-form" onSubmit={handleAddTrip}>
+        <input
+          className="trip-form__field"
+          type="text"
+          placeholder="Title"
+          value={newTrip.title}
+          onChange={(e) => setNewTrip({ ...newTrip, title: e.target.value })}
+        />
 
-    <textarea
-      placeholder="Description"
-      value={newTrip.description}
-      onChange={(e) =>
-        setNewTrip({ ...newTrip, description: e.target.value })
-      }
-    />
+        <input
+          className="trip-form__field"
+          type="text"
+          placeholder="Destination"
+          value={newTrip.destination}
+          onChange={(e) =>
+            setNewTrip({ ...newTrip, destination: e.target.value })
+          }
+        />
 
-    <input
-      type="number"
-      placeholder="Price"
-      value={newTrip.price}
-      onChange={(e) => setNewTrip({ ...newTrip, price: e.target.value })}
-    />
+        <textarea
+          className="trip-form__field"
+          placeholder="Description"
+          value={newTrip.description}
+          onChange={(e) =>
+            setNewTrip({ ...newTrip, description: e.target.value })
+          }
+        />
 
-    <button type="submit">Add trip</button>
-  </form>
-</section>
-<section>
-  <h2>Your trips</h2>
+        <input
+          className="trip-form__field"
+          type="number"
+          placeholder="Price"
+          value={newTrip.price}
+          onChange={(e) => setNewTrip({ ...newTrip, price: e.target.value })}
+        />
 
-  {trips.length === 0 ? (
-    <p>No trips yet.</p>
-  ) : (
-    <ul>
-      {trips.map((trip) => (
-        <li key={trip.id}>
-          <strong>{trip.title}</strong> — {trip.destination}
-        </li>
-      ))}
-    </ul>
-  )}
-</section>
-      <button type="button" onClick={handleLogout}>
-        Logout
-      </button>
-    </main>
-  );
+        <button className="trip-form__button" type="submit">
+          Add trip
+        </button>
+      </form>
+    </section>
+
+    <section className="dashboard-card">
+      <h2>Your trips</h2>
+
+      {trips.length === 0 ? (
+        <p>No trips yet.</p>
+      ) : (
+        <ul>
+          {trips.map((trip) => (
+            <li key={trip.id}>
+              <strong>{trip.title}</strong> — {trip.destination}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+
+    <button type="button" onClick={handleLogout}>
+      Logout
+    </button>
+  </main>
+);
 }
 
 export default DashboardPage;

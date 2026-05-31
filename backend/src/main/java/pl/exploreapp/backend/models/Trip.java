@@ -1,11 +1,14 @@
 package pl.exploreapp.backend.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
 @Entity
 @Table(name = "trips")
 public class Trip {
@@ -14,30 +17,27 @@ public class Trip {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "category_id")
+    private Long categoryId;
+
     private String title;
+    private String destination;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
     private String description;
     private Double price;
 
-    // Bezargumentowy konstruktor (wymagany przez JPA)
-    public Trip() {}
+    @Column(name = "is_archived")
+    private Boolean archived = false;
 
-    // Konstruktor do tworzenia wycieczek
-    public Trip(String title, String description, Double price) {
-        this.title = title;
-        this.description = description;
-        this.price = price;
-    }
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-    // Gettery i Settery (żeby Java mogła czytać i zapisywać dane)
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public Double getPrice() { return price; }
-    public void setPrice(Double price) { this.price = price; }
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

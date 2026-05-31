@@ -25,3 +25,12 @@ export async function addTrip(trip) {
 
   return response.json();
 }
+export async function deleteTrip(id) {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete trip");
+  }
+}

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { addTrip, getTrips } from "../services/tripService";
+import { addTrip, deleteTrip, getTrips } from "../services/tripService";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -56,6 +56,16 @@ if (
   console.error(error);
   alert("Could not add trip.");
 }
+}
+async function handleDeleteTrip(id) {
+  try {
+    await deleteTrip(id);
+
+    setTrips(trips.filter((trip) => trip.id !== id));
+  } catch (error) {
+    console.error(error);
+    alert("Could not delete trip.");
+  }
 }
  return (
   <main className="dashboard-page">
@@ -118,13 +128,23 @@ if (
       {trips.length === 0 ? (
         <p>No trips yet.</p>
       ) : (
-        <ul>
-          {trips.map((trip) => (
-            <li key={trip.id}>
-              <strong>{trip.title}</strong> — {trip.destination}
-            </li>
-          ))}
-        </ul>
+       <ul>
+  {trips.map((trip) => (
+    <li key={trip.id} className="trip-list__item">
+      <span>
+        <strong>{trip.title}</strong> — {trip.destination}
+      </span>
+
+      <button
+        className="trip-list__delete"
+        type="button"
+        onClick={() => handleDeleteTrip(trip.id)}
+      >
+        Delete
+      </button>
+    </li>
+  ))}
+</ul>
       )}
     </section>
 

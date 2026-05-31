@@ -326,3 +326,24 @@ color: var(--color-primary);
 .dashboard-hero p {
   max-width: 420px;
 }
+.trip-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+}
+
+.trip-list__delete {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #c2410c;
+  border-radius: 8px;
+  background: transparent;
+  color: #c2410c;
+  font: inherit;
+  cursor: pointer;
+}
+
+.trip-list__delete:hover {
+  background: #fff7ed;
+}

@@ -61,10 +61,10 @@ if (
     <main>
       <h1>Dashboard</h1>
       <p>You are logged in.</p>
-      <section>
+      <section className="dashboard-card">
   <h2>Add new trip</h2>
 
-  <form onSubmit={handleAddTrip}>
+  <form className="trip-form" onSubmit={handleAddTrip}>
     <input
       type="text"
       placeholder="Title"

@@ -38,8 +38,17 @@ const navigate = useNavigate();
 
     const response = await loginUser(formData);
     console.log("Login response:", response);
-    setSuccessMessage(response.message);
+
+    if (response.token) {
+  localStorage.setItem("token", response.token);
     navigate("/dashboard");
+  return;
+}
+
+setError(response.message);
+
+    // setSuccessMessage(response.message);
+    // navigate("/dashboard");
   }
 
   return (

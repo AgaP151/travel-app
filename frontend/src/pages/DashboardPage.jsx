@@ -4,6 +4,7 @@ function DashboardPage() {
   const navigate = useNavigate();
 
   function handleLogout() {
+    localStorage.removeItem("token");
     navigate("/login");
   }
 

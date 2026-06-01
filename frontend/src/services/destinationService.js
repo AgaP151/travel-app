@@ -1,10 +1,10 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
 export async function getDestinationDetails(query) {
   const token = localStorage.getItem("token");
 
   const response = await fetch(
-`${API_URL}/destinations/details?query=${encodeURIComponent(query)}`,
+    `${API_URL}/destinations/details?query=${encodeURIComponent(query)}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

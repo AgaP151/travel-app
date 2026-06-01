@@ -84,27 +84,32 @@ function DashboardPage() {
       alert("Could not delete trip.");
     }
   }
-
   async function handleSelectTrip(tripId, destination) {
+    console.log("CLICKED TRIP:", tripId, destination);
+
+    setDetailsLoading(true);
+    setDetailsError("");
+    setDestinationDetails(null);
+    setSelectedTripId(tripId);
+    setTasks([]);
+
     try {
-      setDetailsLoading(true);
-      setDetailsError("");
-      setDestinationDetails(null);
-      setSelectedTripId(tripId);
-      setTasks([]);
-
-      const [detailsData, tasksData] = await Promise.all([
-        getDestinationDetails(destination),
-        getTasks(tripId)
-      ]);
-
+      const detailsData = await getDestinationDetails(destination);
+      console.log("DETAILS DATA:", detailsData);
       setDestinationDetails(detailsData);
+    } catch (error) {
+      console.error(error);
+      setDetailsError("Could not load destination details.");
+    } finally {
+      setDetailsLoading(false);
+    }
+
+    try {
+      const tasksData = await getTasks(tripId);
       setTasks(tasksData);
     } catch (error) {
       console.error(error);
-      setDetailsError("Could not load trip details or tasks.");
-    } finally {
-      setDetailsLoading(false);
+      setTasks([]);
     }
   }
 
@@ -125,7 +130,7 @@ function DashboardPage() {
   async function handleToggleTask(taskId) {
     try {
       const updatedTask = await toggleTask(selectedTripId, taskId);
-      setTasks(tasks.map(t => t.id === taskId ? updatedTask : t));
+      setTasks(tasks.map((t) => (t.id === taskId ? updatedTask : t)));
     } catch (error) {
       console.error(error);
       alert("Could not update task status.");
@@ -241,9 +246,13 @@ function DashboardPage() {
                 {destinationDetails.weather && (
                   <div className="weather-box">
                     <h3>Current Weather</h3>
-                    <p>Temperature: {destinationDetails.weather.temperature}°C</p>
+                    <p>
+                      Temperature: {destinationDetails.weather.temperature}°C
+                    </p>
                     <p>Humidity: {destinationDetails.weather.humidity}%</p>
-                    <p>Wind speed: {destinationDetails.weather.windSpeed} km/h</p>
+                    <p>
+                      Wind speed: {destinationDetails.weather.windSpeed} km/h
+                    </p>
                     <p>Description: {destinationDetails.weather.description}</p>
                   </div>
                 )}
@@ -261,32 +270,42 @@ function DashboardPage() {
 
               <div className="destination-tasks-section">
                 <h3>Trip Checklist / Packing List</h3>
-                
+
                 <form onSubmit={handleAddTask} className="task-form">
-                  <input 
+                  <input
                     type="text"
                     placeholder="Add item to pack or task..."
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
                     className="task-form__input"
                   />
-                  <button type="submit" className="task-form__button">Add</button>
+                  <button type="submit" className="task-form__button">
+                    Add
+                  </button>
                 </form>
 
                 {tasks.length === 0 ? (
-                  <p className="no-tasks">No tasks for this trip yet. Add some above!</p>
+                  <p className="no-tasks">
+                    No tasks for this trip yet. Add some above!
+                  </p>
                 ) : (
                   <ul className="task-list">
                     {tasks.map((task) => (
                       <li key={task.id} className="task-list__item">
                         <label className="task-list__label">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={task.isCompleted}
                             onChange={() => handleToggleTask(task.id)}
                             className="task-list__checkbox"
                           />
-                          <span className={task.isCompleted ? "task-list__text--completed" : "task-list__text"}>
+                          <span
+                            className={
+                              task.isCompleted
+                                ? "task-list__text--completed"
+                                : "task-list__text"
+                            }
+                          >
                             {task.title}
                           </span>
                         </label>

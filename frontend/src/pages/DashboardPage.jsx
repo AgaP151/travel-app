@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { addTrip, deleteTrip, getTrips } from "../services/tripService";
 import { getDestinationDetails } from "../services/destinationService";
+import { getTasks, addTask, toggleTask } from "../services/taskService";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -15,6 +16,11 @@ function DashboardPage() {
     description: "",
     price: "",
   });
+
+  const [selectedTripId, setSelectedTripId] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+
   useEffect(() => {
     async function loadTrips() {
       try {
@@ -28,10 +34,12 @@ function DashboardPage() {
 
     loadTrips();
   }, []);
+
   function handleLogout() {
     localStorage.removeItem("token");
     navigate("/login");
   }
+
   async function handleAddTrip(e) {
     e.preventDefault();
     if (
@@ -61,31 +69,69 @@ function DashboardPage() {
       alert("Could not add trip.");
     }
   }
+
   async function handleDeleteTrip(id) {
     try {
       await deleteTrip(id);
-
       setTrips(trips.filter((trip) => trip.id !== id));
+      if (selectedTripId === id) {
+        setDestinationDetails(null);
+        setSelectedTripId(null);
+        setTasks([]);
+      }
     } catch (error) {
       console.error(error);
       alert("Could not delete trip.");
     }
   }
-  async function handleShowDestinationDetails(destination) {
+
+  async function handleSelectTrip(tripId, destination) {
     try {
       setDetailsLoading(true);
       setDetailsError("");
       setDestinationDetails(null);
+      setSelectedTripId(tripId);
+      setTasks([]);
 
-      const data = await getDestinationDetails(destination);
-      setDestinationDetails(data);
+      const [detailsData, tasksData] = await Promise.all([
+        getDestinationDetails(destination),
+        getTasks(tripId)
+      ]);
+
+      setDestinationDetails(detailsData);
+      setTasks(tasksData);
     } catch (error) {
       console.error(error);
-      setDetailsError("Could not load destination details.");
+      setDetailsError("Could not load trip details or tasks.");
     } finally {
       setDetailsLoading(false);
     }
   }
+
+  async function handleAddTask(e) {
+    e.preventDefault();
+    if (!newTaskTitle.trim() || !selectedTripId) return;
+
+    try {
+      const createdTask = await addTask(selectedTripId, newTaskTitle.trim());
+      setTasks([...tasks, createdTask]);
+      setNewTaskTitle("");
+    } catch (error) {
+      console.error(error);
+      alert("Could not add task.");
+    }
+  }
+
+  async function handleToggleTask(taskId) {
+    try {
+      const updatedTask = await toggleTask(selectedTripId, taskId);
+      setTasks(tasks.map(t => t.id === taskId ? updatedTask : t));
+    } catch (error) {
+      console.error(error);
+      alert("Could not update task status.");
+    }
+  }
+
   return (
     <main className="dashboard-page">
       <section className="dashboard-hero">
@@ -96,7 +142,7 @@ function DashboardPage() {
         <p>Plan your next journey and manage your trips.</p>
       </section>
 
-      <section className="dashboard-card destination-details">
+      <section className="dashboard-card">
         <h2>Add new trip</h2>
 
         <form className="trip-form" onSubmit={handleAddTrip}>
@@ -153,7 +199,7 @@ function DashboardPage() {
                 <button
                   className="trip-list__details"
                   type="button"
-                  onClick={() => handleShowDestinationDetails(trip.destination)}
+                  onClick={() => handleSelectTrip(trip.id, trip.destination)}
                 >
                   <strong>{trip.title}</strong> — {trip.destination}
                 </button>
@@ -170,9 +216,6 @@ function DashboardPage() {
           </ul>
         )}
       </section>
-      {detailsLoading && <p>Loading destination details...</p>}
-
-      {detailsError && <p>{detailsError}</p>}
 
       {(detailsLoading || detailsError || destinationDetails) && (
         <section className="dashboard-card destination-details">
@@ -195,7 +238,6 @@ function DashboardPage() {
               )}
 
               <div className="destination-details__meta">
-                {/* POPRAWKA: Używamy destinationDetails zamiast destination */}
                 {destinationDetails.weather && (
                   <div className="weather-box">
                     <h3>Current Weather</h3>
@@ -206,7 +248,6 @@ function DashboardPage() {
                   </div>
                 )}
 
-                {/* POPRAWKA: Używamy destinationDetails oraz conversionRates */}
                 {destinationDetails.conversionRates && (
                   <div className="currency-box">
                     <h3>Currency Rates (1 PLN equals)</h3>
@@ -217,11 +258,49 @@ function DashboardPage() {
                   </div>
                 )}
               </div>
+
+              <div className="destination-tasks-section">
+                <h3>Trip Checklist / Packing List</h3>
+                
+                <form onSubmit={handleAddTask} className="task-form">
+                  <input 
+                    type="text"
+                    placeholder="Add item to pack or task..."
+                    value={newTaskTitle}
+                    onChange={(e) => setNewTaskTitle(e.target.value)}
+                    className="task-form__input"
+                  />
+                  <button type="submit" className="task-form__button">Add</button>
+                </form>
+
+                {tasks.length === 0 ? (
+                  <p className="no-tasks">No tasks for this trip yet. Add some above!</p>
+                ) : (
+                  <ul className="task-list">
+                    {tasks.map((task) => (
+                      <li key={task.id} className="task-list__item">
+                        <label className="task-list__label">
+                          <input 
+                            type="checkbox"
+                            checked={task.isCompleted}
+                            onChange={() => handleToggleTask(task.id)}
+                            className="task-list__checkbox"
+                          />
+                          <span className={task.isCompleted ? "task-list__text--completed" : "task-list__text"}>
+                            {task.title}
+                          </span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </>
           )}
         </section>
       )}
-      <button type="button" onClick={handleLogout}>
+
+      <button type="button" onClick={handleLogout} className="logout-button">
         Logout
       </button>
     </main>

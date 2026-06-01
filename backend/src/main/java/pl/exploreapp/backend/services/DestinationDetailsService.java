@@ -37,7 +37,7 @@ public class DestinationDetailsService {
         }
 
         Map response = restClient.get()
-                .uri("https://api.pexels.com/v1/search?query={query}&per_page=1", query)
+                .uri("https://api.pexels.com/v1/search?query={query}&per_page=10", query)
                 .header("Authorization", pexelsApiKey)
                 .retrieve()
                 .body(Map.class);
@@ -51,9 +51,9 @@ public class DestinationDetailsService {
         if (photos.isEmpty()) {
             return null;
         }
-
-        Map firstPhoto = (Map) photos.get(0);
-        Map src = (Map) firstPhoto.get("src");
+        int randomIndex = java.util.concurrent.ThreadLocalRandom.current().nextInt(photos.size());
+        Map selectedPhoto = (Map) photos.get(randomIndex);
+        Map src = (Map) selectedPhoto.get("src");
 
         return (String) src.get("large");
     }

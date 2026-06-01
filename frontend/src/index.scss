@@ -374,3 +374,42 @@ color: var(--color-primary);
     flex-direction: column;
   }
 }
+.trip-list__details {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.trip-list__details:hover {
+  text-decoration: underline;
+}
+
+.destination-details {
+  margin-top: 24px;
+  overflow: hidden;
+}
+
+.destination-details__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.destination-details__image-wrapper {
+  width: 100%;
+  max-width: 720px;
+  aspect-ratio: 16 / 9;
+  margin: 16px auto;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.destination-details__meta {
+  display: grid;
+  gap: 8px;
+}

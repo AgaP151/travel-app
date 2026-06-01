@@ -47,12 +47,13 @@ public class DestinationDetailsService {
 
     @SuppressWarnings("rawtypes")
     private String fetchImageUrl(String query) {
+        String pexelsQuery = normalizeDestinationForImageSearch(query);
         if (pexelsApiKey == null || pexelsApiKey.isBlank()) {
             return null;
         }
         try {
             Map response = restClient.get()
-                    .uri("https://api.pexels.com/v1/search?query={query}&per_page=10", query)
+                    .uri("https://api.pexels.com/v1/search?query={query}&per_page=10", pexelsQuery)
                     .header("Authorization", pexelsApiKey)
                     .retrieve()
                     .body(Map.class);
@@ -146,4 +147,23 @@ public class DestinationDetailsService {
         defaults.put("CZK", 5.68);
         return defaults;
     }
+    private String normalizeDestinationForImageSearch(String query) {
+    if (query == null || query.isBlank()) {
+        return "";
+    }
+
+    String normalized = query.trim().toLowerCase();
+
+    return switch (normalized) {
+        case "praga" -> "Prague landmark";
+        case "warszawa" -> "Warsaw Palace of Culture";
+        case "kraków", "krakow" -> "Krakow Main Market Square";
+        case "jelenia góra", "jelenia gora" -> "Jelenia Gora mountains";
+        case "wrocław", "wroclaw" -> "Wroclaw Market Square";
+        case "gdańsk", "gdansk" -> "Gdansk old town";
+        case "rzym" -> "Rome Colosseum";
+        case "paryż", "paryz" -> "Paris Eiffel Tower";
+        default -> query.trim() + " landmark";
+    };
+}
 }

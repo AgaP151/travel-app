@@ -195,8 +195,27 @@ function DashboardPage() {
               )}
 
               <div className="destination-details__meta">
-                <p>{destinationDetails.weather}</p>
-                <p>{destinationDetails.currency}</p>
+                {/* POPRAWKA: Używamy destinationDetails zamiast destination */}
+                {destinationDetails.weather && (
+                  <div className="weather-box">
+                    <h3>Current Weather</h3>
+                    <p>Temperature: {destinationDetails.weather.temperature}°C</p>
+                    <p>Humidity: {destinationDetails.weather.humidity}%</p>
+                    <p>Wind speed: {destinationDetails.weather.windSpeed} km/h</p>
+                    <p>Description: {destinationDetails.weather.description}</p>
+                  </div>
+                )}
+
+                {/* POPRAWKA: Używamy destinationDetails oraz conversionRates */}
+                {destinationDetails.conversionRates && (
+                  <div className="currency-box">
+                    <h3>Currency Rates (1 PLN equals)</h3>
+                    <p>EUR: {destinationDetails.conversionRates.EUR}</p>
+                    <p>USD: {destinationDetails.conversionRates.USD}</p>
+                    <p>GBP: {destinationDetails.conversionRates.GBP}</p>
+                    <p>CZK: {destinationDetails.conversionRates.CZK}</p>
+                  </div>
+                )}
               </div>
             </>
           )}

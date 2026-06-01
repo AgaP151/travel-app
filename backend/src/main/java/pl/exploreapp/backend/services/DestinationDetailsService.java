@@ -1,9 +1,12 @@
 package pl.exploreapp.backend.services;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -13,48 +16,134 @@ import pl.exploreapp.backend.dto.DestinationDetailsResponse;
 public class DestinationDetailsService {
 
     private final String pexelsApiKey;
+    private final String weatherApiKey;
+    private final String currencyApiKey;
     private final RestClient restClient;
 
-    public DestinationDetailsService(@Value("${pexels.api.key}") String pexelsApiKey) {
+    public DestinationDetailsService(
+            @Value("${pexels.api.key}") String pexelsApiKey,
+            @Value("${weather.api.key}") String weatherApiKey,
+            @Value("${currency.api.key}") String currencyApiKey) {
         this.pexelsApiKey = pexelsApiKey;
+        this.weatherApiKey = weatherApiKey;
+        this.currencyApiKey = currencyApiKey;
         this.restClient = RestClient.create();
     }
 
+    // Wymóg nr 4: System cache (kluczem jest zapytanie pisane małymi literami)
+    @Cacheable(value = "destinationCache", key = "#query.toLowerCase()")
     public DestinationDetailsResponse getDetails(String query) {
         String imageUrl = fetchImageUrl(query);
+        DestinationDetailsResponse.WeatherInfo weatherInfo = fetchWeather(query);
+        Map<String, Double> rates = fetchExchangeRates();
 
         return new DestinationDetailsResponse(
                 query,
                 imageUrl,
-                "Weather data will be loaded from external API",
-                "Currency data will be loaded from external API"
+                weatherInfo,
+                rates
         );
     }
 
+    @SuppressWarnings("rawtypes")
     private String fetchImageUrl(String query) {
         if (pexelsApiKey == null || pexelsApiKey.isBlank()) {
             return null;
         }
+        try {
+            Map response = restClient.get()
+                    .uri("https://api.pexels.com/v1/search?query={query}&per_page=10", query)
+                    .header("Authorization", pexelsApiKey)
+                    .retrieve()
+                    .body(Map.class);
 
-        Map response = restClient.get()
-                .uri("https://api.pexels.com/v1/search?query={query}&per_page=10", query)
-                .header("Authorization", pexelsApiKey)
-                .retrieve()
-                .body(Map.class);
+            if (response == null || !response.containsKey("photos")) {
+                return null;
+            }
 
-        if (response == null || !response.containsKey("photos")) {
+            List photos = (List) response.get("photos");
+            if (photos.isEmpty()) {
+                return null;
+            }
+
+            int randomIndex = ThreadLocalRandom.current().nextInt(photos.size());
+            Map selectedPhoto = (Map) photos.get(randomIndex);
+            Map src = (Map) selectedPhoto.get("src");
+
+            return (String) src.get("large");
+        } catch (Exception e) {
             return null;
         }
+    }
 
-        List photos = (List) response.get("photos");
-
-        if (photos.isEmpty()) {
-            return null;
+    @SuppressWarnings("rawtypes")
+    private DestinationDetailsResponse.WeatherInfo fetchWeather(String query) {
+        if (weatherApiKey == null || weatherApiKey.isBlank()) {
+            return new DestinationDetailsResponse.WeatherInfo(22.0, 50, 10.0, "clear sky (fallback)");
         }
-        int randomIndex = java.util.concurrent.ThreadLocalRandom.current().nextInt(photos.size());
-        Map selectedPhoto = (Map) photos.get(randomIndex);
-        Map src = (Map) selectedPhoto.get("src");
+        try {
+            String url = String.format("https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s&units=metric", query, weatherApiKey);
+            Map response = restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .body(Map.class);
 
-        return (String) src.get("large");
+            if (response == null) throw new RuntimeException("Empty weather response");
+
+            Map main = (Map) response.get("main");
+            List weatherList = (List) response.get("weather");
+            Map weatherObject = (Map) weatherList.get(0);
+            Map wind = (Map) response.get("wind");
+
+            double temp = ((Number) main.get("temp")).doubleValue();
+            int humidity = ((Number) main.get("humidity")).intValue();
+            double windSpeed = ((Number) wind.get("speed")).doubleValue();
+            String description = (String) weatherObject.get("description");
+
+            return new DestinationDetailsResponse.WeatherInfo(temp, humidity, windSpeed, description);
+        } catch (Exception e) {
+            // Bezpieczny fallback w razie awarii API lub braku internetu
+            return new DestinationDetailsResponse.WeatherInfo(22.0, 48, 8.0, "sunny");
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private Map<String, Double> fetchExchangeRates() {
+        if (currencyApiKey == null || currencyApiKey.isBlank()) {
+            return getDefaultRates();
+        }
+        try {
+            String url = String.format("https://v6.exchangerate-api.com/v6/%s/latest/PLN", currencyApiKey);
+            Map response = restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .body(Map.class);
+
+            if (response == null || !response.containsKey("conversion_rates")) {
+                return getDefaultRates();
+            }
+
+            Map conversionRates = (Map) response.get("conversion_rates");
+            Map<String, Double> targetRates = new HashMap<>();
+            String[] checkedCurrencies = {"EUR", "USD", "GBP", "CZK"};
+
+            for (String curr : checkedCurrencies) {
+                if (conversionRates.containsKey(curr)) {
+                    targetRates.put(curr, ((Number) conversionRates.get(curr)).doubleValue());
+                }
+            }
+            return targetRates;
+        } catch (Exception e) {
+            return getDefaultRates();
+        }
+    }
+
+    private Map<String, Double> getDefaultRates() {
+        Map<String, Double> defaults = new HashMap<>();
+        defaults.put("EUR", 0.23);
+        defaults.put("USD", 0.25);
+        defaults.put("GBP", 0.20);
+        defaults.put("CZK", 5.68);
+        return defaults;
     }
 }

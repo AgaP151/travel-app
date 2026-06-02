@@ -31,4 +31,11 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
             WHERE trip_id = :tripId AND user_id = :userId
             """, nativeQuery = true)
     boolean existsByTripIdAndUserId(Long tripId, Long userId);
+
+    @Modifying
+@Query(value = """
+        DELETE FROM trip_user
+        WHERE trip_id = :tripId AND user_id = :userId
+        """, nativeQuery = true)
+void removeUserFromTrip(Long tripId, Long userId);
 }

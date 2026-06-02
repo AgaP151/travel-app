@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { addTrip, deleteTrip, getTrips } from "../services/tripService";
+import { addTrip, deleteTrip, getTrips, inviteUserToTrip, removeUserFromTrip } from "../services/tripService";
 import { getDestinationDetails } from "../services/destinationService";
 import { getTasks, addTask, toggleTask } from "../services/taskService";
 
@@ -20,6 +20,8 @@ function DashboardPage() {
   const [selectedTripId, setSelectedTripId] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
+ const [inviteEmail, setInviteEmail] = useState("");
+const [inviteMessage, setInviteMessage] = useState("");
 
   useEffect(() => {
     async function loadTrips() {
@@ -136,7 +138,38 @@ function DashboardPage() {
       alert("Could not update task status.");
     }
   }
+async function handleInviteUser(e) {
+  e.preventDefault();
 
+  if (!selectedTripId || !inviteEmail.trim()) {
+    return;
+  }
+
+  try {
+    await inviteUserToTrip(selectedTripId, inviteEmail.trim());
+    setInviteMessage("User invited to trip.");
+    setInviteEmail("");
+  } catch (error) {
+    console.error(error);
+    setInviteMessage("Could not invite user.");
+  }
+}
+
+async function handleRemoveUserFromTrip() {
+
+  if (!selectedTripId || !inviteEmail.trim()) {
+    return;
+  }
+
+  try {
+    await removeUserFromTrip(selectedTripId, inviteEmail.trim());
+    setInviteMessage("User removed from trip.");
+    setInviteEmail("");
+  } catch (error) {
+    console.error(error);
+    setInviteMessage("Could not remove user from trip.");
+  }
+}
   return (
     <main className="dashboard-page">
       <section className="dashboard-hero">
@@ -186,7 +219,7 @@ function DashboardPage() {
             onChange={(e) => setNewTrip({ ...newTrip, price: e.target.value })}
           />
 
-          <button className="trip-form__button" type="submit">
+          <button className="trip-form__button " type="submit">
             Add trip
           </button>
         </form>
@@ -267,7 +300,32 @@ function DashboardPage() {
                   </div>
                 )}
               </div>
+<div className="trip-invite-section">
+  <h3>Invite user to this trip</h3>
 
+  <form onSubmit={handleInviteUser} className="trip-invite-form">
+    <input
+      type="email"
+      placeholder="User email"
+      value={inviteEmail}
+      onChange={(e) => setInviteEmail(e.target.value)}
+      className="trip-invite-form__input"
+    />
+
+    <button type="submit" className="trip-invite-form__button">
+      Invite
+    </button>
+    <button
+  type="button"
+  className="trip-invite-form__button"
+  onClick={handleRemoveUserFromTrip}
+>
+  Remove
+</button>
+  </form>
+
+  {inviteMessage && <p>{inviteMessage}</p>}
+</div>
               <div className="destination-tasks-section">
                 <h3>Trip Checklist / Packing List</h3>
 

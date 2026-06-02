@@ -47,3 +47,32 @@ export async function deleteTrip(id) {
     throw new Error("Failed to delete trip");
   }
 }
+export async function inviteUserToTrip(tripId, email) {
+  const response = await fetch(`${API_URL}/${tripId}/invite`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to invite user to trip");
+  }
+}
+
+export async function removeUserFromTrip(tripId, email) {
+  const response = await fetch(`${API_URL}/${tripId}/users`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to remove user from trip");
+  }
+}

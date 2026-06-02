@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import pl.exploreapp.backend.dto.CreateTripRequest;
 import pl.exploreapp.backend.models.Trip;
 import pl.exploreapp.backend.services.TripService;
+import pl.exploreapp.backend.dto.InviteUserRequest;
 
 @RestController
 @RequestMapping("/api/trips")
@@ -35,5 +36,19 @@ public Trip createTrip(@RequestBody CreateTripRequest request) {
 @DeleteMapping("/{id}")
 public void deleteTrip(@PathVariable Long id) {
     tripService.deleteTrip(id);
+}
+@PostMapping("/{id}/invite")
+public void inviteUserToTrip(
+        @PathVariable Long id,
+        @RequestBody InviteUserRequest request
+) {
+    tripService.inviteUserToTrip(id, request);
+}
+@DeleteMapping("/{id}/users")
+public void removeUserFromTrip(
+        @PathVariable Long id,
+        @RequestBody InviteUserRequest request
+) {
+    tripService.removeUserFromTrip(id, request);
 }
 }

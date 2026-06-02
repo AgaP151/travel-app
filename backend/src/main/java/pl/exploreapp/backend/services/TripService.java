@@ -14,6 +14,7 @@ import pl.exploreapp.backend.models.Trip;
 import pl.exploreapp.backend.models.User;
 import pl.exploreapp.backend.repositories.TripRepository;
 import pl.exploreapp.backend.repositories.UserRepository;
+import pl.exploreapp.backend.dto.InviteUserRequest;
 
 @Service
 public class TripService {
@@ -80,4 +81,63 @@ public class TripService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new AccessDeniedException("User not found"));
     }
+    @Transactional
+public void inviteUserToTrip(Long tripId, InviteUserRequest request) {
+    User currentUser = getCurrentUser();
+
+    boolean currentUserHasAccess = tripRepository.existsByTripIdAndUserId(
+            tripId,
+            currentUser.getId()
+    );
+
+    if (!currentUserHasAccess && !"ROLE_ADMIN".equals(currentUser.getRole())) {
+        throw new AccessDeniedException("You do not have access to this trip");
+    }
+
+    User invitedUser = userRepository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new IllegalArgumentException("User with this email does not exist"));
+
+    boolean invitedUserAlreadyAdded = tripRepository.existsByTripIdAndUserId(
+            tripId,
+            invitedUser.getId()
+    );
+
+    if (invitedUserAlreadyAdded) {
+        return;
+    }
+
+    tripRepository.addUserToTrip(tripId, invitedUser.getId());
+
+    logger.info(
+            "User {} invited user {} to trip {}",
+            currentUser.getEmail(),
+            invitedUser.getEmail(),
+            tripId
+    );
+}
+@Transactional
+public void removeUserFromTrip(Long tripId, InviteUserRequest request) {
+    User currentUser = getCurrentUser();
+
+    boolean currentUserHasAccess = tripRepository.existsByTripIdAndUserId(
+            tripId,
+            currentUser.getId()
+    );
+
+    if (!currentUserHasAccess && !"ROLE_ADMIN".equals(currentUser.getRole())) {
+        throw new AccessDeniedException("You do not have access to this trip");
+    }
+
+    User userToRemove = userRepository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new IllegalArgumentException("User with this email does not exist"));
+
+    tripRepository.removeUserFromTrip(tripId, userToRemove.getId());
+
+    logger.info(
+            "User {} removed user {} from trip {}",
+            currentUser.getEmail(),
+            userToRemove.getEmail(),
+            tripId
+    );
+}
 }

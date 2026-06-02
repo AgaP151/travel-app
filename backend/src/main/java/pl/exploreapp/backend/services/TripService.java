@@ -4,28 +4,42 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import pl.exploreapp.backend.dto.CreateTripRequest;
 import pl.exploreapp.backend.models.Trip;
+import pl.exploreapp.backend.models.User;
 import pl.exploreapp.backend.repositories.TripRepository;
+import pl.exploreapp.backend.repositories.UserRepository;
 
 @Service
 public class TripService {
-private static final Logger logger = LoggerFactory.getLogger(TripService.class);
-    private final TripRepository tripRepository;
 
-    public TripService(TripRepository tripRepository) {
+    private static final Logger logger = LoggerFactory.getLogger(TripService.class);
+
+    private final TripRepository tripRepository;
+    private final UserRepository userRepository;
+
+    public TripService(TripRepository tripRepository, UserRepository userRepository) {
         this.tripRepository = tripRepository;
+        this.userRepository = userRepository;
     }
 
-   public List<Trip> getAllTrips() {
-    logger.info("Fetching all trips");
+    public List<Trip> getAllTrips() {
+        User currentUser = getCurrentUser();
 
-    return tripRepository.findAll();
-}
+        logger.info("Fetching trips for user id: {}", currentUser.getId());
 
+        return tripRepository.findAllByUserId(currentUser.getId());
+    }
+
+    @Transactional
     public Trip createTrip(CreateTripRequest request) {
+        User currentUser = getCurrentUser();
+
         Trip trip = new Trip();
 
         trip.setCategoryId(request.getCategoryId());
@@ -36,12 +50,34 @@ private static final Logger logger = LoggerFactory.getLogger(TripService.class);
         trip.setDescription(request.getDescription());
         trip.setPrice(request.getPrice());
         trip.setArchived(false);
-logger.info("Creating trip with title: {}", request.getTitle());
-        return tripRepository.save(trip);
+
+        logger.info("Creating trip with title: {} for user id: {}", request.getTitle(), currentUser.getId());
+
+        Trip savedTrip = tripRepository.save(trip);
+        tripRepository.addUserToTrip(savedTrip.getId(), currentUser.getId());
+
+        return savedTrip;
     }
 
+    @Transactional
     public void deleteTrip(Long id) {
-         logger.info("Deleting trip with id: {}", id);
+        User currentUser = getCurrentUser();
+
+        boolean hasAccess = tripRepository.existsByTripIdAndUserId(id, currentUser.getId());
+
+        if (!hasAccess && !"ROLE_ADMIN".equals(currentUser.getRole())) {
+            throw new AccessDeniedException("You do not have access to this trip");
+        }
+
+        logger.info("Deleting trip with id: {} by user id: {}", id, currentUser.getId());
+
         tripRepository.deleteById(id);
+    }
+
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new AccessDeniedException("User not found"));
     }
 }

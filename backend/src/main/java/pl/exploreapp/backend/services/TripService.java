@@ -23,10 +23,12 @@ public class TripService {
 
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
+    private final MailService mailService;
 
-    public TripService(TripRepository tripRepository, UserRepository userRepository) {
+    public TripService(TripRepository tripRepository, UserRepository userRepository, MailService mailService) {
         this.tripRepository = tripRepository;
         this.userRepository = userRepository;
+        this.mailService = mailService;
     }
 
     public List<Trip> getAllTrips() {
@@ -107,6 +109,14 @@ public void inviteUserToTrip(Long tripId, InviteUserRequest request) {
     }
 
     tripRepository.addUserToTrip(tripId, invitedUser.getId());
+    Trip trip = tripRepository.findById(tripId)
+        .orElseThrow(() -> new IllegalArgumentException("Trip does not exist"));
+
+mailService.sendTripInviteEmail(
+        invitedUser.getEmail(),
+        trip.getTitle(),
+        currentUser.getEmail()
+);
 
     logger.info(
             "User {} invited user {} to trip {}",

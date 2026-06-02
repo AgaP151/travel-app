@@ -1,7 +1,17 @@
 const API_URL = `${import.meta.env.VITE_API_URL}/trips`;
 
+function getAuthHeaders() {
+  const token = localStorage.getItem("token");
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
+
 export async function getTrips() {
-  const response = await fetch(API_URL);
+  const response = await fetch(API_URL, {
+    headers: getAuthHeaders(),
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch trips");
@@ -15,6 +25,7 @@ export async function addTrip(trip) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(trip),
   });
@@ -25,9 +36,11 @@ export async function addTrip(trip) {
 
   return response.json();
 }
+
 export async function deleteTrip(id) {
   const response = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {

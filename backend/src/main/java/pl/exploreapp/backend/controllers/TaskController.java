@@ -38,6 +38,6 @@ public class TaskController {
     public ResponseEntity<TaskResponse> toggleTask(
             @PathVariable Long tripId,
             @PathVariable Long taskId) {
-        return ResponseEntity.ok(taskService.toggleTask(taskId));
+        return ResponseEntity.ok(taskService.toggleTask(tripId, taskId));
     }
 }

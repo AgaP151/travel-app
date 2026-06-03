@@ -30,8 +30,8 @@ public class DestinationDetailsService {
         this.restClient = RestClient.create();
     }
 
-    // Wymóg nr 4: System cache (kluczem jest zapytanie pisane małymi literami)
-    @Cacheable(value = "destinationCache", key = "#query.toLowerCase()")
+
+    @Cacheable(value = "destinationCache", key = "#query.trim().toLowerCase()")
     public DestinationDetailsResponse getDetails(String query) {
         String imageUrl = fetchImageUrl(query);
         DestinationDetailsResponse.WeatherInfo weatherInfo = fetchWeather(query);

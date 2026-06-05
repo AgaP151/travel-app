@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { addTrip, deleteTrip, getTrips, inviteUserToTrip, removeUserFromTrip } from "../services/tripService";
 import { getDestinationDetails } from "../services/destinationService";
 import { getTasks, addTask, toggleTask } from "../services/taskService";
 
 function DashboardPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [destinationDetails, setDestinationDetails] = useState(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
@@ -30,7 +32,7 @@ const [inviteMessage, setInviteMessage] = useState("");
         setTrips(data);
       } catch (error) {
         console.error(error);
-        alert("Could not load trips.");
+        alert(t("dashboard.couldNotLoadTrips"));
       }
     }
 
@@ -49,7 +51,7 @@ const [inviteMessage, setInviteMessage] = useState("");
       !newTrip.destination.trim() ||
       Number(newTrip.price) <= 0
     ) {
-      alert("Title, destination and price are required.");
+      alert(t("dashboard.requiredTripFields"));
       return;
     }
     try {
@@ -68,7 +70,7 @@ const [inviteMessage, setInviteMessage] = useState("");
       });
     } catch (error) {
       console.error(error);
-      alert("Could not add trip.");
+      alert(t("dashboard.couldNotAddTrip"));
     }
   }
 
@@ -83,7 +85,7 @@ const [inviteMessage, setInviteMessage] = useState("");
       }
     } catch (error) {
       console.error(error);
-      alert("Could not delete trip.");
+      alert(t("dashboard.couldNotDeleteTrip"));
     }
   }
   async function handleSelectTrip(tripId, destination) {
@@ -101,7 +103,7 @@ const [inviteMessage, setInviteMessage] = useState("");
       setDestinationDetails(detailsData);
     } catch (error) {
       console.error(error);
-      setDetailsError("Could not load destination details.");
+      setDetailsError(t("dashboard.couldNotLoadDetails"));
     } finally {
       setDetailsLoading(false);
     }
@@ -125,7 +127,7 @@ const [inviteMessage, setInviteMessage] = useState("");
       setNewTaskTitle("");
     } catch (error) {
       console.error(error);
-      alert("Could not add task.");
+      alert(t("dashboard.couldNotAddTask"));
     }
   }
 
@@ -135,7 +137,7 @@ const [inviteMessage, setInviteMessage] = useState("");
       setTasks(tasks.map((t) => (t.id === taskId ? updatedTask : t)));
     } catch (error) {
       console.error(error);
-      alert("Could not update task status.");
+      alert(t("dashboard.couldNotUpdateTask"));
     }
   }
 async function handleInviteUser(e) {
@@ -147,11 +149,11 @@ async function handleInviteUser(e) {
 
   try {
     await inviteUserToTrip(selectedTripId, inviteEmail.trim());
-    setInviteMessage("User invited to trip.");
+    setInviteMessage(t("dashboard.userInvited"));
     setInviteEmail("");
   } catch (error) {
     console.error(error);
-    setInviteMessage("Could not invite user.");
+    setInviteMessage(t("dashboard.couldNotInvite"));
   }
 }
 
@@ -163,31 +165,34 @@ async function handleRemoveUserFromTrip() {
 
   try {
     await removeUserFromTrip(selectedTripId, inviteEmail.trim());
-    setInviteMessage("User removed from trip.");
+    setInviteMessage(t("dashboard.userRemoved"));
     setInviteEmail("");
   } catch (error) {
     console.error(error);
-    setInviteMessage("Could not remove user from trip.");
+    setInviteMessage(t("dashboard.couldNotRemove"));
   }
 }
   return (
     <main className="dashboard-page">
       <section className="dashboard-hero">
-        <p className="dashboard-hero__subtitle">Discover amazing places</p>
-        <h1>
-          Where to <span>next?</span>
-        </h1>
-        <p>Plan your next journey and manage your trips.</p>
-      </section>
+  <p className="dashboard-hero__subtitle">
+    {t("dashboard.heroSubtitle")}
+  </p>
+  <h1>
+    {t("dashboard.heroTitleStart")}{" "}
+    <span>{t("dashboard.heroTitleHighlight")}</span>
+  </h1>
+  <p>{t("dashboard.heroDescription")}</p>
+</section>
 
       <section className="dashboard-card">
-        <h2>Add new trip</h2>
+        <h2>{t("dashboard.addNewTrip")}</h2>
 
         <form className="trip-form" onSubmit={handleAddTrip}>
           <input
             className="trip-form__field"
             type="text"
-            placeholder="Title"
+            placeholder={t("dashboard.title")}
             value={newTrip.title}
             onChange={(e) => setNewTrip({ ...newTrip, title: e.target.value })}
           />
@@ -195,7 +200,7 @@ async function handleRemoveUserFromTrip() {
           <input
             className="trip-form__field"
             type="text"
-            placeholder="Destination"
+            placeholder={t("dashboard.destination")}
             value={newTrip.destination}
             onChange={(e) =>
               setNewTrip({ ...newTrip, destination: e.target.value })
@@ -204,7 +209,7 @@ async function handleRemoveUserFromTrip() {
 
           <textarea
             className="trip-form__field"
-            placeholder="Description"
+            placeholder={t("dashboard.description")}
             value={newTrip.description}
             onChange={(e) =>
               setNewTrip({ ...newTrip, description: e.target.value })
@@ -214,22 +219,22 @@ async function handleRemoveUserFromTrip() {
           <input
             className="trip-form__field"
             type="number"
-            placeholder="Price"
+            placeholder={t("dashboard.price")}
             value={newTrip.price}
             onChange={(e) => setNewTrip({ ...newTrip, price: e.target.value })}
           />
 
           <button className="trip-form__button " type="submit">
-            Add trip
+            {t("dashboard.addTrip")}
           </button>
         </form>
       </section>
 
       <section className="dashboard-card">
-        <h2>Your trips</h2>
+        <h2>{t("dashboard.yourTrips")}</h2>
 
         {trips.length === 0 ? (
-          <p>No trips yet.</p>
+           <p>{t("dashboard.noTrips")}</p>
         ) : (
           <ul>
             {trips.map((trip) => (
@@ -247,7 +252,7 @@ async function handleRemoveUserFromTrip() {
                   type="button"
                   onClick={() => handleDeleteTrip(trip.id)}
                 >
-                  Delete
+                  {t("dashboard.delete")}
                 </button>
               </li>
             ))}
@@ -257,9 +262,9 @@ async function handleRemoveUserFromTrip() {
 
       {(detailsLoading || detailsError || destinationDetails) && (
         <section className="dashboard-card destination-details">
-          {detailsLoading && <p>Loading destination details...</p>}
+          {detailsLoading && <p>{t("dashboard.loadingDetails")}</p>}
 
-          {detailsError && <p>{detailsError}</p>}
+          {detailsError && <p>{t("dashboard.couldNotLoadDetails")}</p>}
 
           {!detailsLoading && destinationDetails && (
             <>
@@ -278,21 +283,21 @@ async function handleRemoveUserFromTrip() {
               <div className="destination-details__meta">
                 {destinationDetails.weather && (
                   <div className="weather-box">
-                    <h3>Current Weather</h3>
+                    <h3>{t("dashboard.currentWeather")}</h3>
                     <p>
-                      Temperature: {destinationDetails.weather.temperature}°C
+                      {t("dashboard.temperature")}: {destinationDetails.weather.temperature}°C
                     </p>
-                    <p>Humidity: {destinationDetails.weather.humidity}%</p>
+                    <p>{t("dashboard.humidity")}: {destinationDetails.weather.humidity}%</p>
                     <p>
-                      Wind speed: {destinationDetails.weather.windSpeed} km/h
+                      {t("dashboard.windSpeed")}: {destinationDetails.weather.windSpeed} km/h
                     </p>
-                    <p>Description: {destinationDetails.weather.description}</p>
+                    <p>{t("dashboard.weatherDescription")}: {destinationDetails.weather.description}</p>
                   </div>
                 )}
 
                 {destinationDetails.conversionRates && (
                   <div className="currency-box">
-                    <h3>Currency Rates (1 PLN equals)</h3>
+                    <h3>{t("dashboard.currencyRates")}</h3>
                     <p>EUR: {destinationDetails.conversionRates.EUR}</p>
                     <p>USD: {destinationDetails.conversionRates.USD}</p>
                     <p>GBP: {destinationDetails.conversionRates.GBP}</p>
@@ -301,12 +306,12 @@ async function handleRemoveUserFromTrip() {
                 )}
               </div>
 <div className="trip-invite-section">
-  <h3>Invite user to this trip</h3>
+  <h3>{t("dashboard.inviteUser")}</h3>
 
   <form onSubmit={handleInviteUser} className="trip-invite-form">
     <input
       type="email"
-      placeholder="User email"
+      placeholder={t("dashboard.userEmail")}
       value={inviteEmail}
       onChange={(e) => setInviteEmail(e.target.value)}
       className="trip-invite-form__input"
@@ -378,7 +383,7 @@ async function handleRemoveUserFromTrip() {
       )}
 
       <button type="button" onClick={handleLogout} className="logout-button">
-        Logout
+         {t("dashboard.logout")}
       </button>
     </main>
   );

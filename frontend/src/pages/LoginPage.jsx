@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import ThemeSwitcher from "../components/ThemeSwitcher";
 import { loginUser } from "../services/authService";
-import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const { t } = useTranslation();
-const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -40,15 +42,12 @@ const navigate = useNavigate();
     console.log("Login response:", response);
 
     if (response.token) {
-  localStorage.setItem("token", response.token);
-    navigate("/dashboard");
-  return;
-}
+      localStorage.setItem("token", response.token);
+      navigate("/dashboard");
+      return;
+    }
 
-setError(response.message);
-
-    // setSuccessMessage(response.message);
-    // navigate("/dashboard");
+    setError(response.message || t("auth.loginError"));
   }
 
   return (
@@ -61,8 +60,8 @@ setError(response.message);
       <section className="auth-card">
         <div className="auth-image">
           <div className="auth-image-overlay">
-            <h2>Explore smarter</h2>
-            <p>Plan your next journey with weather, budget and local tips.</p>
+            <h2>{t("auth.loginImageTitle")}</h2>
+            <p>{t("auth.loginImageSubtitle")}</p>
           </div>
         </div>
 
@@ -81,7 +80,7 @@ setError(response.message);
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="your@example.com"
+                placeholder={t("auth.emailPlaceholder")}
                 autoComplete="email"
               />
             </label>

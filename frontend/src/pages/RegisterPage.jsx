@@ -46,8 +46,8 @@ async function handleSubmit(event) {
       <section className="auth-card">
         <div className="auth-image">
           <div className="auth-image-overlay">
-            <h2>Start your journey</h2>
-            <p>Create an account and plan trips with weather, budget and local tips.</p>
+            <h2>{t("auth.registerImageTitle")}</h2>
+<p>{t("auth.registerImageSubtitle")}</p>
           </div>
         </div>
 
@@ -65,7 +65,7 @@ async function handleSubmit(event) {
   name="name"
   value={formData.name}
   onChange={handleChange}
-  placeholder="Your name"
+ placeholder={t("auth.namePlaceholder")}
 />
             </label>
 
@@ -76,7 +76,7 @@ async function handleSubmit(event) {
   name="email"
   value={formData.email}
   onChange={handleChange}
-  placeholder="you@example.com"
+  placeholder={t("auth.emailPlaceholder")}
 />
             </label>
 

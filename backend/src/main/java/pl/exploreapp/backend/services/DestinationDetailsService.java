@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -31,7 +30,7 @@ public class DestinationDetailsService {
     }
 
 
-    @Cacheable(value = "destinationCache", key = "#query.trim().toLowerCase()")
+    
     public DestinationDetailsResponse getDetails(String query) {
         String imageUrl = fetchImageUrl(query);
         DestinationDetailsResponse.WeatherInfo weatherInfo = fetchWeather(query);

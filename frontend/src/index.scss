@@ -498,11 +498,51 @@ a {
   min-width: 42px;
   color: var(--color-text);
 }
+.forecast-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.forecast-card {
+  padding: 14px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: rgba(148, 163, 184, 0.08);
+  text-align: center;
+}
+
+.forecast-card__icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  margin-bottom: 4px;
+}
+
+.forecast-card strong {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.forecast-card p {
+  margin: 6px 0 2px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.forecast-card span {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
 
 [data-theme="dark"] .info-box {
   background: rgba(255, 255, 255, 0.04);
 }
-
+[data-theme="dark"] .forecast-card {
+  background: rgba(255, 255, 255, 0.04);
+}
 .trip-invite-section {
   margin-top: 24px;
   padding: 18px;
@@ -608,7 +648,7 @@ a {
     align-items: flex-start;
     flex-direction: column;
   }
-  
+
   .destination-details__meta {
   grid-template-columns: 1fr;
 }

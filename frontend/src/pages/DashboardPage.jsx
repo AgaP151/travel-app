@@ -303,6 +303,24 @@ async function handleRemoveUserFromTrip() {
           {t("dashboard.weatherDescription")}: {destinationDetails.weather.description}
         </p>
       </div>
+      {destinationDetails.forecast?.length > 0 && (
+  <div className="forecast-list">
+    {destinationDetails.forecast.map((day) => (
+      <div className="forecast-card" key={day.date}>
+        <img
+          src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`}
+          alt={day.description}
+          className="forecast-card__icon"
+        />
+        <div>
+          <strong>{day.date}</strong>
+          <p>{day.temperature}°C</p>
+          <span>{day.description}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
     </div>
   )}
 

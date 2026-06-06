@@ -31,12 +31,14 @@ public class DestinationDetailsService {
     public DestinationDetailsResponse getDetails(String query) {
         String imageUrl = fetchImageUrl(query);
         DestinationDetailsResponse.WeatherInfo weatherInfo = fetchWeather(query);
+        List<DestinationDetailsResponse.ForecastDay> forecast = fetchForecast(query);
         Map<String, Double> rates = currencyService.fetchExchangeRates();
 
         return new DestinationDetailsResponse(
                 query,
                 imageUrl,
                 weatherInfo,
+                forecast,
                 rates
         );
     }
@@ -88,16 +90,14 @@ public class DestinationDetailsService {
         }
 
         try {
-            String url = String.format(
-                    "https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s&units=metric",
-                    query,
-                    weatherApiKey
-            );
-
-            Map response = restClient.get()
-                    .uri(url)
-                    .retrieve()
-                    .body(Map.class);
+           Map response = restClient.get()
+        .uri(
+                "https://api.openweathermap.org/data/2.5/weather?q={query}&appid={apiKey}&units=metric",
+                query,
+                weatherApiKey
+        )
+        .retrieve()
+        .body(Map.class);
 
             if (response == null) {
                 throw new RuntimeException("Empty weather response");
@@ -129,6 +129,69 @@ public class DestinationDetailsService {
         }
     }
 
+    @SuppressWarnings({"rawtypes"})
+    private List<DestinationDetailsResponse.ForecastDay> fetchForecast(String query) {
+    if (weatherApiKey == null || weatherApiKey.isBlank()) {
+        return List.of(
+                new DestinationDetailsResponse.ForecastDay("Today", 22.0, "sunny", "01d"),
+                new DestinationDetailsResponse.ForecastDay("Tomorrow", 21.0, "partly cloudy", "02d"),
+                new DestinationDetailsResponse.ForecastDay("Day 3", 20.0, "cloudy", "03d")
+        );
+    }
+
+    try {
+        Map response = restClient.get()
+        .uri(
+                "https://api.openweathermap.org/data/2.5/forecast?q={query}&appid={apiKey}&units=metric",
+                query,
+                weatherApiKey
+        )
+        .retrieve()
+        .body(Map.class);
+
+        if (response == null || !response.containsKey("list")) {
+            return List.of();
+        }
+
+        List forecastList = (List) response.get("list");
+        List<DestinationDetailsResponse.ForecastDay> forecast = new java.util.ArrayList<>();
+
+        for (Object item : forecastList) {
+            Map forecastItem = (Map) item;
+            String dateTime = (String) forecastItem.get("dt_txt");
+
+            if (dateTime == null || !dateTime.contains("12:00:00")) {
+                continue;
+            }
+
+            String date = dateTime.substring(0, 10);
+
+            Map main = (Map) forecastItem.get("main");
+            double temperature = ((Number) main.get("temp")).doubleValue();
+
+            List weatherList = (List) forecastItem.get("weather");
+            Map weatherObject = (Map) weatherList.get(0);
+
+            String description = (String) weatherObject.get("description");
+            String icon = (String) weatherObject.get("icon");
+
+            forecast.add(new DestinationDetailsResponse.ForecastDay(
+                    date,
+                    Math.round(temperature * 10.0) / 10.0,
+                    description,
+                    icon
+            ));
+
+            if (forecast.size() == 5) {
+                break;
+            }
+        }
+
+        return forecast;
+    } catch (Exception e) {
+        return List.of();
+    }
+}
     private String normalizeDestinationForImageSearch(String query) {
         if (query == null || query.isBlank()) {
             return "";

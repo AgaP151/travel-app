@@ -89,8 +89,6 @@ const [inviteMessage, setInviteMessage] = useState("");
     }
   }
   async function handleSelectTrip(tripId, destination) {
-    console.log("CLICKED TRIP:", tripId, destination);
-
     setDetailsLoading(true);
     setDetailsError("");
     setDestinationDetails(null);
@@ -99,7 +97,6 @@ const [inviteMessage, setInviteMessage] = useState("");
 
     try {
       const detailsData = await getDestinationDetails(destination);
-      console.log("DETAILS DATA:", detailsData);
       setDestinationDetails(detailsData);
     } catch (error) {
       console.error(error);

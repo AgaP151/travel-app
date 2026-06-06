@@ -83,11 +83,11 @@ public class TripService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new AccessDeniedException("User not found"));
     }
-    @Transactional
-public void inviteUserToTrip(Long tripId, InviteUserRequest request) {
-    User currentUser = getCurrentUser();
+   @Transactional
+    public void inviteUserToTrip(Long tripId, InviteUserRequest request) {
+        User currentUser = getCurrentUser();
 
-    boolean currentUserHasAccess = tripRepository.existsByTripIdAndUserId(
+        boolean currentUserHasAccess = tripRepository.existsByTripIdAndUserId(
             tripId,
             currentUser.getId()
     );
@@ -109,14 +109,15 @@ public void inviteUserToTrip(Long tripId, InviteUserRequest request) {
     }
 
     tripRepository.addUserToTrip(tripId, invitedUser.getId());
-    Trip trip = tripRepository.findById(tripId)
-        .orElseThrow(() -> new IllegalArgumentException("Trip does not exist"));
 
-mailService.sendTripInviteEmail(
-        invitedUser.getEmail(),
-        trip.getTitle(),
-        currentUser.getEmail()
-);
+    Trip trip = tripRepository.findById(tripId)
+            .orElseThrow(() -> new IllegalArgumentException("Trip does not exist"));
+
+    mailService.sendTripInviteEmail(
+            invitedUser.getEmail(),
+            trip.getTitle(),
+            currentUser.getEmail()
+    );
 
     logger.info(
             "User {} invited user {} to trip {}",

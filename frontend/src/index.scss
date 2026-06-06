@@ -283,7 +283,7 @@ a {
   background: var(--color-bg);
   color: var(--color-text);
 }
-.dashboard-page > * {
+.dashboard-page > section {
   width: 100%;
   max-width: 1120px;
   margin-left: auto;
@@ -440,9 +440,109 @@ a {
 
 .destination-details__meta {
   display: grid;
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
 }
 
+.info-box {
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.info-box__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.info-box__header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.info-box__icon {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(63, 125, 88, 0.12);
+  font-size: 20px;
+}
+
+.info-box__grid {
+  display: grid;
+  gap: 10px;
+}
+
+.info-box__grid p,
+.currency-grid p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-muted);
+}
+
+.currency-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.currency-grid strong {
+  min-width: 42px;
+  color: var(--color-text);
+}
+.forecast-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.forecast-card {
+  padding: 14px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: rgba(148, 163, 184, 0.08);
+  text-align: center;
+}
+
+.forecast-card__icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  margin-bottom: 4px;
+}
+
+.forecast-card strong {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.forecast-card p {
+  margin: 6px 0 2px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.forecast-card span {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+[data-theme="dark"] .info-box {
+  background: rgba(255, 255, 255, 0.04);
+}
+[data-theme="dark"] .forecast-card {
+  background: rgba(255, 255, 255, 0.04);
+}
 .trip-invite-section {
   margin-top: 24px;
   padding: 18px;
@@ -488,6 +588,24 @@ a {
 .trip-invite-section p {
   margin-top: 10px;
 }
+.logout-button {
+  display: block;
+  width: fit-content;
+  margin: 2rem auto 0;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-card);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
 
 @media (max-width: 768px) {
   .dashboard-page {
@@ -530,4 +648,8 @@ a {
     align-items: flex-start;
     flex-direction: column;
   }
+
+  .destination-details__meta {
+  grid-template-columns: 1fr;
+}
 }

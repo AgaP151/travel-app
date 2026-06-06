@@ -278,30 +278,68 @@ async function handleRemoveUserFromTrip() {
               )}
 
               <div className="destination-details__meta">
-                {destinationDetails.weather && (
-                  <div className="weather-box">
-                    <h3>{t("dashboard.currentWeather")}</h3>
-                    <p>
-                      {t("dashboard.temperature")}: {destinationDetails.weather.temperature}°C
-                    </p>
-                    <p>{t("dashboard.humidity")}: {destinationDetails.weather.humidity}%</p>
-                    <p>
-                      {t("dashboard.windSpeed")}: {destinationDetails.weather.windSpeed} km/h
-                    </p>
-                    <p>{t("dashboard.weatherDescription")}: {destinationDetails.weather.description}</p>
-                  </div>
-                )}
+  {destinationDetails.weather && (
+    <div className="info-box weather-box">
+      <div className="info-box__header">
+        <span className="info-box__icon">☀️</span>
+        <h3>{t("dashboard.currentWeather")}</h3>
+      </div>
 
-                {destinationDetails.conversionRates && (
-                  <div className="currency-box">
-                    <h3>{t("dashboard.currencyRates")}</h3>
-                    <p>EUR: {destinationDetails.conversionRates.EUR}</p>
-                    <p>USD: {destinationDetails.conversionRates.USD}</p>
-                    <p>GBP: {destinationDetails.conversionRates.GBP}</p>
-                    <p>CZK: {destinationDetails.conversionRates.CZK}</p>
-                  </div>
-                )}
-              </div>
+      <div className="info-box__grid">
+        <p>
+          <span>🌡️</span>
+          {t("dashboard.temperature")}: {destinationDetails.weather.temperature}°C
+        </p>
+        <p>
+          <span>💧</span>
+          {t("dashboard.humidity")}: {destinationDetails.weather.humidity}%
+        </p>
+        <p>
+          <span>💨</span>
+          {t("dashboard.windSpeed")}: {destinationDetails.weather.windSpeed} km/h
+        </p>
+        <p>
+          <span>☁️</span>
+          {t("dashboard.weatherDescription")}: {destinationDetails.weather.description}
+        </p>
+      </div>
+      {destinationDetails.forecast?.length > 0 && (
+  <div className="forecast-list">
+    {destinationDetails.forecast.map((day) => (
+      <div className="forecast-card" key={day.date}>
+        <img
+          src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`}
+          alt={day.description}
+          className="forecast-card__icon"
+        />
+        <div>
+          <strong>{day.date}</strong>
+          <p>{day.temperature}°C</p>
+          <span>{day.description}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+    </div>
+  )}
+
+  {destinationDetails.conversionRates && (
+    <div className="info-box currency-box">
+      <div className="info-box__header">
+        <span className="info-box__icon">💱</span>
+        <h3>{t("dashboard.currencyRates")}</h3>
+      </div>
+
+      <div className="currency-grid">
+        <p><strong>EUR</strong> {destinationDetails.conversionRates.EUR} PLN</p>
+        <p><strong>USD</strong> {destinationDetails.conversionRates.USD} PLN</p>
+        <p><strong>GBP</strong> {destinationDetails.conversionRates.GBP} PLN</p>
+        <p><strong>CZK</strong> {destinationDetails.conversionRates.CZK} PLN</p>
+      </div>
+    </div>
+  )}
+</div>
 <div className="trip-invite-section">
   <h3>{t("dashboard.inviteUser")}</h3>
 

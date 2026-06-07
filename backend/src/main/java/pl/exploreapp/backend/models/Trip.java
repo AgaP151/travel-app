@@ -35,6 +35,9 @@ public class Trip {
     @Column(name = "is_archived")
     private Boolean archived = false;
 
+    @Column(name = "is_public_demo")
+    private Boolean publicDemo = false;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

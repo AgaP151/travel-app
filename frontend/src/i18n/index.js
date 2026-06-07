@@ -21,9 +21,11 @@ i18n.use(initReactI18next).init({
           registerButton: "Create account",
           hasAccount: "Already have an account?",
           loginImageTitle: "Explore smarter",
-          loginImageSubtitle: "Plan your next journey with weather, budget and local tips.",
+          loginImageSubtitle:
+            "Plan your next journey with weather, budget and local tips.",
           registerImageTitle: "Start your journey",
-          registerImageSubtitle: "Create an account and plan trips with weather, budget and local tips.",
+          registerImageSubtitle:
+            "Create an account and plan trips with weather, budget and local tips.",
           namePlaceholder: "Your name",
           emailPlaceholder: "your@example.com",
         },
@@ -68,7 +70,10 @@ i18n.use(initReactI18next).init({
           userRemoved: "User removed from trip.",
           couldNotRemove: "Could not remove user from trip.",
           logout: "Log out",
-         
+          travelInspirations: "Travel inspirations",
+          noInspirations: "No travel inspirations.",
+          inspiration: "Inspiration",
+                  
         },
       },
     },
@@ -85,23 +90,27 @@ i18n.use(initReactI18next).init({
           noAccount: "Nie masz konta?",
           createOne: "Utwórz konto",
           registerTitle: "Utwórz konto",
-          registerSubtitle: "Zarejestruj się, aby rozpocząć planowanie podróży.",
+          registerSubtitle:
+            "Zarejestruj się, aby rozpocząć planowanie podróży.",
           name: "Imię",
           registerButton: "Utwórz konto",
           hasAccount: "Masz już konto?",
           loginImageTitle: "Odkrywaj sprytniej",
-loginImageSubtitle: "Planuj podróże z pogodą, budżetem i lokalnymi wskazówkami.",
-registerImageTitle: "Rozpocznij podróż",
-registerImageSubtitle: "Utwórz konto i planuj podróże z pogodą, budżetem i lokalnymi wskazówkami.",
-namePlaceholder: "Twoje imię",
-emailPlaceholder: "twoj@email.com",
-loginError: "Nie udało się zalogować.",
+          loginImageSubtitle:
+            "Planuj podróże z pogodą, budżetem i lokalnymi wskazówkami.",
+          registerImageTitle: "Rozpocznij podróż",
+          registerImageSubtitle:
+            "Utwórz konto i planuj podróże z pogodą, budżetem i lokalnymi wskazówkami.",
+          namePlaceholder: "Twoje imię",
+          emailPlaceholder: "twoj@email.com",
+          loginError: "Nie udało się zalogować.",
         },
         dashboard: {
           heroSubtitle: "Odkrywaj wyjątkowe miejsca",
           heroTitleStart: "Dokąd",
           heroTitleHighlight: "teraz?",
-          heroDescription: "Zaplanuj kolejną podróż i zarządzaj swoimi wyjazdami.",
+          heroDescription:
+            "Zaplanuj kolejną podróż i zarządzaj swoimi wyjazdami.",
           addNewTrip: "Dodaj nową podróż",
           title: "Tytuł",
           destination: "Cel podróży",
@@ -138,7 +147,10 @@ loginError: "Nie udało się zalogować.",
           userRemoved: "Użytkownik został usunięty z podróży.",
           couldNotRemove: "Nie udało się usunąć użytkownika z podróży.",
           logout: "Wyloguj",
-         
+          travelInspirations: "Inspiracje podróżnicze",
+          noInspirations: "Brak inspiracji podróżniczych.",
+          inspiration: "Inspiracja",
+        
         },
       },
     },

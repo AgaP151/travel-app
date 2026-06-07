@@ -275,9 +275,12 @@ function DashboardPage() {
     }
 
     try {
-      const createdTask = await addTask(selectedTripId, newTaskTitle.trim());
-      setTasks((prevTasks) => [...prevTasks, createdTask]);
-      setNewTaskTitle("");
+      await addTask(selectedTripId, newTaskTitle.trim());
+
+const tasksData = await getTasks(selectedTripId);
+setTasks(tasksData);
+
+setNewTaskTitle("");
     } catch (error) {
       console.error(error);
       alert(t("dashboard.couldNotAddTask"));
@@ -290,11 +293,10 @@ function DashboardPage() {
     }
 
     try {
-      const updatedTask = await toggleTask(selectedTripId, taskId);
+    await toggleTask(selectedTripId, taskId);
 
-      setTasks((prevTasks) =>
-        prevTasks.map((task) => (task.id === taskId ? updatedTask : task))
-      );
+const tasksData = await getTasks(selectedTripId);
+setTasks(tasksData);
     } catch (error) {
       console.error(error);
       alert(t("dashboard.couldNotUpdateTask"));
@@ -518,9 +520,9 @@ function DashboardPage() {
                 >
                   <strong>{trip.title}</strong>
                   <span>{trip.destination}</span>
-                  <small>
-                    {formatTripDates(trip)}
-                    {trip.price ? ` · ${trip.price} PLN` : ""}
+                  <small className="trip-card__meta">
+                  <span>{formatTripDates(trip)}</span>
+                    {trip.price ? <span>{trip.price} PLN</span> : null}
                   </small>
                 </button>
 
@@ -767,14 +769,14 @@ function DashboardPage() {
                         <label className="task-list__label">
                           <input
                             type="checkbox"
-                            checked={task.isCompleted}
+                            checked={task.completed}
                             onChange={() => handleToggleTask(task.id)}
                             disabled={selectedTripIsPublicDemo}
                             className="task-list__checkbox"
                           />
                           <span
                             className={
-                              task.isCompleted
+                              task.completed
                                 ? "task-list__text--completed"
                                 : "task-list__text"
                             }

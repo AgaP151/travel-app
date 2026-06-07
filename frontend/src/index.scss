@@ -585,7 +585,12 @@ backdrop-filter: blur(8px);
   text-align: left;
   font: inherit;
 }
-
+.trip-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  color: var(--color-text-muted);
+}
 .trip-list__details strong {
   display: block;
   margin-bottom: 4px;
@@ -701,11 +706,25 @@ backdrop-filter: blur(8px);
 .info-box__grid p,
 .currency-grid p {
   margin: 0;
+  color: var(--color-muted);
+  line-height: 1.35;
+}
+
+.info-box__grid p {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr;
+  align-items: center;
+  column-gap: 0.45rem;
+}
+
+.info-box__grid p span:first-child {
+  text-align: center;
+}
+
+.currency-grid p {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--color-muted);
-  line-height: 1.35;
 }
 
 .currency-grid {
@@ -749,7 +768,8 @@ backdrop-filter: blur(8px);
   height: clamp(64px, 7vw, 88px);
   flex-shrink: 0;
   object-fit: contain;
-  margin-bottom: 2px;
+  display: block;
+  margin: 0 auto 2px;
 
 
 }
@@ -836,7 +856,39 @@ backdrop-filter: blur(8px);
   margin: 10px 0 0;
   color: var(--color-muted);
 }
+.trip-participants-section {
+  margin-top: 1rem;
+}
 
+.trip-participants-list {
+  padding: 0;
+  margin: 0.75rem 0 0;
+  list-style: none;
+}
+
+.trip-participants-list__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  padding: 0.45rem 0;
+}
+
+.trip-participants-list__item strong {
+  color: var(--color-text);
+}
+
+.trip-participants-list__item span {
+  color: var(--color-text-muted);
+}
+
+.trip-participants-list__item small {
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(15, 136, 52, 0.12);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
 .task-list {
   display: grid;
   gap: 8px;

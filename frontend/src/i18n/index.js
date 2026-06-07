@@ -78,7 +78,10 @@ i18n.use(initReactI18next).init({
           invite: "Invite",
           remove: "Remove",
           copyTripBeforeInvite: "Add this inspiration to your trips first.",
-
+          tripParticipants: "Trip participants",
+          noParticipants: "No participants assigned to this trip.",
+          noParticipantsForPublicDemo:
+          "Public inspiration has no assigned participants.",
           checklist: "Trip checklist / packing list",
           tripChecklist: "Trip checklist / packing list",
           addTaskPlaceholder: "Add item to pack or task...",
@@ -186,7 +189,10 @@ i18n.use(initReactI18next).init({
           remove: "Usuń",
           copyTripBeforeInvite:
             "Najpierw dodaj inspirację do swoich podróży.",
-
+          tripParticipants: "Uczestnicy podróży",
+          noParticipants: "Brak uczestników przypisanych do tej podróży.",
+          noParticipantsForPublicDemo:
+          "Publiczna inspiracja nie ma przypisanych uczestników.",
           checklist: "Lista zadań podróży / lista pakowania",
           tripChecklist: "Lista zadań podróży / lista pakowania",
           addTaskPlaceholder: "Dodaj rzecz do spakowania albo zadanie...",

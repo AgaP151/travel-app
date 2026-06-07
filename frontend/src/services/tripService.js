@@ -47,6 +47,7 @@ export async function deleteTrip(id) {
     throw new Error("Failed to delete trip");
   }
 }
+
 export async function inviteUserToTrip(tripId, email) {
   const response = await fetch(`${API_URL}/${tripId}/invite`, {
     method: "POST",
@@ -58,6 +59,10 @@ export async function inviteUserToTrip(tripId, email) {
   });
 
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error("USER_ALREADY_ASSIGNED");
+    }
+
     throw new Error("Failed to invite user to trip");
   }
 }
@@ -76,6 +81,7 @@ export async function removeUserFromTrip(tripId, email) {
     throw new Error("Failed to remove user from trip");
   }
 }
+
 export async function copyTripToMyTrips(tripId) {
   const response = await fetch(`${API_URL}/${tripId}/copy`, {
     method: "POST",
@@ -84,6 +90,18 @@ export async function copyTripToMyTrips(tripId) {
 
   if (!response.ok) {
     throw new Error("Failed to copy trip");
+  }
+
+  return response.json();
+}
+
+export async function getTripParticipants(tripId) {
+  const response = await fetch(`${API_URL}/${tripId}/participants`, {
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch trip participants");
   }
 
   return response.json();

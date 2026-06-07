@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import pl.exploreapp.backend.models.Trip;
+import pl.exploreapp.backend.models.User;
 
 public interface TripRepository extends JpaRepository<Trip, Long> {
 
@@ -46,4 +47,13 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
         WHERE trip_id = :tripId AND user_id = :userId
         """, nativeQuery = true)
     void removeUserFromTrip(Long tripId, Long userId);
+
+    @Query(value = """
+            SELECT u.*
+            FROM users u
+            JOIN trip_user tu ON u.id = tu.user_id
+            WHERE tu.trip_id = :tripId
+            ORDER BY u.email
+            """, nativeQuery = true)
+    List<User> findParticipantsByTripId(Long tripId);
 }

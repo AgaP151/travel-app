@@ -41,10 +41,22 @@ public class TaskService {
         throw new AccessDeniedException("You do not have access to this trip");
     }
 }
+        private void checkTripReadAccess(Long tripId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AccessDeniedException("User not found"));
+
+        boolean hasAccess = tripRepository.existsByTripIdAndUserId(tripId, currentUser.getId());
+        boolean isPublicDemo = tripRepository.isPublicDemoTrip(tripId);
+
+        if (!hasAccess && !isPublicDemo && !"ROLE_ADMIN".equals(currentUser.getRole())) {
+            throw new AccessDeniedException("You do not have access to this trip");
+        }
+    }
     @Transactional(readOnly = true)
     public List<TaskResponse> getTasksForTrip(Long tripId) {
-        checkTripAccess(tripId);
+        checkTripReadAccess(tripId);
         logger.info("Fetching tasks for trip id: {}", tripId);
         return taskRepository.findByTripId(tripId).stream()
                 .map(task -> new TaskResponse(task.getId(), task.getTitle(), task.isCompleted()))

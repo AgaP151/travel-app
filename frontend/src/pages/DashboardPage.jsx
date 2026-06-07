@@ -215,11 +215,11 @@ async function handleRemoveUserFromTrip() {
       <section className="dashboard-card">
         <h2>{t("dashboard.yourTrips")}</h2>
 
-        {trips.length === 0 ? (
-           <p>{t("dashboard.noTrips")}</p>
-        ) : (
-          <ul>
-            {trips.map((trip) => (
+       {myTrips.length === 0 ? (
+  <p>{t("dashboard.noTrips")}</p>
+) : (
+  <ul>
+    {myTrips.map((trip) => (
               <li key={trip.id} className="trip-list__item">
                 <button
                   className="trip-list__details"

@@ -192,11 +192,11 @@ async function handleRemoveUserFromTrip() {
   {demoTrips.length === 0 ? (
     <p>{t("dashboard.noInspirations")}</p>
   ) : (
-    <ul>
+    <ul className="inspirations-slider">
       {demoTrips.map((trip) => (
-        <li key={trip.id} className="trip-list__item">
+        <li key={trip.id} className="inspiration-card">
           <button
-            className="trip-list__details"
+            className="inspiration-card__button"
             type="button"
             onClick={() => handleSelectTrip(trip.id, trip.destination)}
           >

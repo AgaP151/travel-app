@@ -11,6 +11,7 @@ import {
 } from "../services/tripService";
 import { getDestinationDetails } from "../services/destinationService";
 import { getTasks, addTask, toggleTask } from "../services/taskService";
+import { getAdminUsers } from "../services/adminService";
 
 function DashboardPage() {
   const { t } = useTranslation();
@@ -36,6 +37,9 @@ function DashboardPage() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteMessage, setInviteMessage] = useState("");
 
+  const [adminUsers, setAdminUsers] = useState([]);
+  const [adminError, setAdminError] = useState("");
+
   const myTrips = trips.filter((trip) => trip.publicDemo !== true);
   const demoTrips = trips.filter((trip) => trip.publicDemo === true);
   const selectedTrip = trips.find((trip) => trip.id === selectedTripId);
@@ -56,6 +60,24 @@ function DashboardPage() {
     loadTrips();
   }, []);
 
+  useEffect(() => {
+    async function loadAdminUsers() {
+      if (loggedUser?.role !== "ROLE_ADMIN") {
+        return;
+      }
+
+      try {
+        const users = await getAdminUsers();
+        setAdminUsers(users);
+      } catch (error) {
+        console.error(error);
+        setAdminError(t("dashboard.couldNotLoadUsers"));
+      }
+    }
+
+    loadAdminUsers();
+  }, [loggedUser?.role]);
+
   function getLoggedUser() {
     const token = localStorage.getItem("token");
 
@@ -66,9 +88,22 @@ function DashboardPage() {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
 
+      let role = "";
+
+      if (typeof payload.role === "string") {
+        role = payload.role;
+      } else if (Array.isArray(payload.authorities)) {
+        role = payload.authorities
+          .map((authority) =>
+            typeof authority === "string" ? authority : authority.authority
+          )
+          .filter(Boolean)
+          .join(", ");
+      }
+
       return {
         email: payload.sub || payload.email || "",
-        role: payload.role || payload.authorities || "",
+        role,
       };
     } catch {
       return null;
@@ -89,7 +124,7 @@ function DashboardPage() {
       return trip.startDate;
     }
 
-    return t("dashboard.noDate", "Brak terminu");
+    return t("dashboard.noDate");
   }
 
   function isLongTermForecastUnavailable() {
@@ -122,12 +157,7 @@ function DashboardPage() {
       newTrip.endDate &&
       newTrip.endDate < newTrip.startDate
     ) {
-      alert(
-        t(
-          "dashboard.invalidDateRange",
-          "Data zakończenia nie może być wcześniejsza niż data rozpoczęcia."
-        )
-      );
+      alert(t("dashboard.invalidDateRange"));
       return;
     }
 
@@ -294,12 +324,34 @@ function DashboardPage() {
 
         {loggedUser && (
           <div className="dashboard-user">
-            <span>{t("dashboard.loggedAs", "Zalogowano jako")}</span>
+            <span>{t("dashboard.loggedAs")}</span>
             <strong>{loggedUser.email}</strong>
-            {loggedUser.role && <small>{loggedUser.role}</small>}
+            {loggedUser.role === "ROLE_ADMIN" && <small>ADMIN</small>}
           </div>
         )}
       </section>
+
+      {loggedUser?.role === "ROLE_ADMIN" && (
+        <section className="dashboard-card admin-panel">
+          <h2>{t("dashboard.adminPanel")}</h2>
+
+          {adminError && <p>{adminError}</p>}
+
+          {adminUsers.length === 0 ? (
+            <p>{t("dashboard.noUsers")}</p>
+          ) : (
+            <ul className="admin-users-list">
+              {adminUsers.map((user) => (
+                <li key={user.id} className="admin-users-list__item">
+                  <strong>{user.email}</strong>
+                  <span>{user.name || "-"}</span>
+                  <small>{user.role}</small>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       <section className="dashboard-card">
         <h2>{t("dashboard.travelInspirations")}</h2>
@@ -444,7 +496,7 @@ function DashboardPage() {
               {selectedTrip && (
                 <div className="selected-trip-meta">
                   <p>
-                    <strong>{t("dashboard.date", "Termin")}:</strong>{" "}
+                    <strong>{t("dashboard.date")}:</strong>{" "}
                     {formatTripDates(selectedTrip)}
                   </p>
                   <p>
@@ -474,10 +526,7 @@ function DashboardPage() {
 
                     {isLongTermForecastUnavailable() && (
                       <p className="forecast-note">
-                        {t(
-                          "dashboard.longTermForecastUnavailable",
-                          "Prognoza długoterminowa dla terminu podróży jest niedostępna. Pokazujemy najbliższą dostępną prognozę."
-                        )}
+                        {t("dashboard.longTermForecastUnavailable")}
                       </p>
                     )}
 
@@ -558,12 +607,7 @@ function DashboardPage() {
                 <h3>{t("dashboard.inviteUser")}</h3>
 
                 {selectedTripIsPublicDemo && (
-                  <p>
-                    {t(
-                      "dashboard.copyTripBeforeInvite",
-                      "Najpierw dodaj inspirację do swoich podróży."
-                    )}
-                  </p>
+                  <p>{t("dashboard.copyTripBeforeInvite")}</p>
                 )}
 
                 <form onSubmit={handleInviteUser} className="trip-invite-form">
@@ -581,7 +625,7 @@ function DashboardPage() {
                     className="trip-invite-form__button"
                     disabled={selectedTripIsPublicDemo}
                   >
-                    {t("dashboard.invite", "Zaproś")}
+                    {t("dashboard.invite")}
                   </button>
 
                   <button
@@ -590,7 +634,7 @@ function DashboardPage() {
                     onClick={handleRemoveUserFromTrip}
                     disabled={selectedTripIsPublicDemo}
                   >
-                    {t("dashboard.remove", "Usuń")}
+                    {t("dashboard.remove")}
                   </button>
                 </form>
 
@@ -601,18 +645,13 @@ function DashboardPage() {
                 <h3>{t("dashboard.tripChecklist")}</h3>
 
                 {selectedTripIsPublicDemo && (
-                  <p>
-                    {t(
-                      "dashboard.copyTripBeforeTasks",
-                      "To jest publiczna inspiracja. Dodaj ją do swoich podróży, żeby edytować checklistę."
-                    )}
-                  </p>
+                  <p>{t("dashboard.copyTripBeforeTasks")}</p>
                 )}
 
                 <form onSubmit={handleAddTask} className="task-form">
                   <input
                     type="text"
-                   placeholder={t("dashboard.addTaskPlaceholder")}
+                    placeholder={t("dashboard.addTaskPlaceholder")}
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
                     disabled={selectedTripIsPublicDemo}
@@ -629,11 +668,7 @@ function DashboardPage() {
                 </form>
 
                 {tasks.length === 0 ? (
-                  <p className="no-tasks">
-                    {t(
-                      "dashboard.noTasks"                  
-                    )}
-                  </p>
+                  <p className="no-tasks">{t("dashboard.noTasks")}</p>
                 ) : (
                   <ul className="task-list">
                     {tasks.map((task) => (

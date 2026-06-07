@@ -28,59 +28,85 @@ i18n.use(initReactI18next).init({
             "Create an account and plan trips with weather, budget and local tips.",
           namePlaceholder: "Your name",
           emailPlaceholder: "your@example.com",
+          loginError: "Could not log in.",
         },
         dashboard: {
           heroSubtitle: "Discover amazing places",
           heroTitleStart: "Where to",
           heroTitleHighlight: "next?",
           heroDescription: "Plan your next journey and manage your trips.",
+
+          loggedAs: "Logged in as",
+
+          travelInspirations: "Travel inspirations",
+          noInspirations: "No travel inspirations.",
+          inspiration: "Inspiration",
+          addToMyTrips: "Add to my trips",
+          tripCopied: "Inspiration added to your trips.",
+          couldNotCopyTrip: "Could not add inspiration.",
+
           addNewTrip: "Add new trip",
+          addTrip: "Add trip",
           title: "Title",
-          destination: "Destination",
           tripTitle: "Trip title",
+          destination: "Destination",
           description: "Description",
           price: "Price",
-          addTrip: "Add trip",
+          date: "Date",
+          noDate: "No date",
+          invalidDateRange: "End date cannot be earlier than start date.",
+
           yourTrips: "Your trips",
           noTrips: "No trips yet.",
           delete: "Delete",
+
           loadingDetails: "Loading destination details...",
-          currentWeather: "Current Weather",
+          couldNotLoadDetails: "Could not load destination details.",
+
+          currentWeather: "Current weather",
           temperature: "Temperature",
           humidity: "Humidity",
           windSpeed: "Wind speed",
           weatherDescription: "Description",
-          currencyRates: "Currency Rates (PLN)",
+          longTermForecastUnavailable:
+            "Long-term forecast for the trip date is unavailable. Showing the nearest available forecast.",
+
+          currencyRates: "Currency rates (PLN)",
+
           inviteUser: "Invite user to this trip",
           userEmail: "User email",
           invite: "Invite",
           remove: "Remove",
-          checklist: "Trip Checklist / Packing List",
+          copyTripBeforeInvite: "Add this inspiration to your trips first.",
+
+          checklist: "Trip checklist / packing list",
           tripChecklist: "Trip checklist / packing list",
           addTaskPlaceholder: "Add item to pack or task...",
           add: "Add",
-          noTasks: "No tasks for this trip yet. Add some above!",
+          noTasks: "No tasks for this trip yet. Add some above.",
+          copyTripBeforeTasks:
+            "This is a public inspiration. Add it to your trips to edit the checklist.",
+
+          adminPanel: "Admin panel",
+          noUsers: "No users found.",
+          couldNotLoadUsers: "Could not load users.",
+
           couldNotLoadTrips: "Could not load trips.",
           requiredTripFields: "Title, destination and price are required.",
           couldNotAddTrip: "Could not add trip.",
           couldNotDeleteTrip: "Could not delete trip.",
-          couldNotLoadDetails: "Could not load destination details.",
           couldNotAddTask: "Could not add task.",
           couldNotUpdateTask: "Could not update task status.",
           userInvited: "User invited to trip.",
           couldNotInvite: "Could not invite user.",
           userRemoved: "User removed from trip.",
           couldNotRemove: "Could not remove user from trip.",
+
           logout: "Log out",
-          travelInspirations: "Travel inspirations",
-          noInspirations: "No travel inspirations.",
-          inspiration: "Inspiration",
-                  addToMyTrips: "Add to my trips",
-tripCopied: "Inspiration added to your trips.",
-couldNotCopyTrip: "Could not add inspiration.",
         },
       },
     },
+
     pl: {
       translation: {
         auth: {
@@ -115,50 +141,76 @@ couldNotCopyTrip: "Could not add inspiration.",
           heroTitleHighlight: "teraz?",
           heroDescription:
             "Zaplanuj kolejną podróż i zarządzaj swoimi wyjazdami.",
+
+          loggedAs: "Zalogowano jako",
+
+          travelInspirations: "Inspiracje podróżnicze",
+          noInspirations: "Brak inspiracji podróżniczych.",
+          inspiration: "Inspiracja",
+          addToMyTrips: "Dodaj do moich podróży",
+          tripCopied: "Dodano inspirację do Twoich podróży.",
+          couldNotCopyTrip: "Nie udało się dodać inspiracji.",
+
           addNewTrip: "Dodaj nową podróż",
+          addTrip: "Dodaj podróż",
           title: "Tytuł",
-          destination: "Cel podróży",
           tripTitle: "Tytuł podróży",
+          destination: "Cel podróży",
           description: "Opis",
           price: "Cena",
-          addTrip: "Dodaj podróż",
+          date: "Termin",
+          noDate: "Brak terminu",
+          invalidDateRange:
+            "Data zakończenia nie może być wcześniejsza niż data rozpoczęcia.",
+
           yourTrips: "Twoje podróże",
           noTrips: "Nie masz jeszcze podróży.",
           delete: "Usuń",
+
           loadingDetails: "Ładowanie szczegółów miejsca...",
+          couldNotLoadDetails: "Nie udało się załadować szczegółów miejsca.",
+
           currentWeather: "Aktualna pogoda",
           temperature: "Temperatura",
           humidity: "Wilgotność",
           windSpeed: "Prędkość wiatru",
           weatherDescription: "Opis",
+          longTermForecastUnavailable:
+            "Prognoza długoterminowa dla terminu podróży jest niedostępna. Pokazujemy najbliższą dostępną prognozę.",
+
           currencyRates: "Kursy walut (PLN)",
+
           inviteUser: "Zaproś użytkownika do tej podróży",
           userEmail: "Email użytkownika",
           invite: "Zaproś",
           remove: "Usuń",
-          checklist: "Checklista podróży / lista pakowania",
+          copyTripBeforeInvite:
+            "Najpierw dodaj inspirację do swoich podróży.",
+
+          checklist: "Lista zadań podróży / lista pakowania",
           tripChecklist: "Lista zadań podróży / lista pakowania",
           addTaskPlaceholder: "Dodaj rzecz do spakowania albo zadanie...",
           add: "Dodaj",
-          noTasks: "Nie ma jeszcze zadań dla tej podróży. Dodaj coś powyżej!",
+          noTasks: "Brak zadań dla tej podróży. Dodaj pierwsze powyżej.",
+          copyTripBeforeTasks:
+            "To jest publiczna inspiracja. Dodaj ją do swoich podróży, żeby edytować checklistę.",
+
+          adminPanel: "Panel administratora",
+          noUsers: "Brak użytkowników.",
+          couldNotLoadUsers: "Nie udało się załadować użytkowników.",
+
           couldNotLoadTrips: "Nie udało się załadować podróży.",
           requiredTripFields: "Tytuł, cel podróży i cena są wymagane.",
           couldNotAddTrip: "Nie udało się dodać podróży.",
           couldNotDeleteTrip: "Nie udało się usunąć podróży.",
-          couldNotLoadDetails: "Nie udało się załadować szczegółów miejsca.",
           couldNotAddTask: "Nie udało się dodać zadania.",
           couldNotUpdateTask: "Nie udało się zmienić statusu zadania.",
           userInvited: "Użytkownik został zaproszony do podróży.",
           couldNotInvite: "Nie udało się zaprosić użytkownika.",
           userRemoved: "Użytkownik został usunięty z podróży.",
-          couldNotRemove: "Nie udało się usunąć użytkownika z podróży.",
+          couldNotRemove: "Nie udało się usunąć użytkownika.",
+
           logout: "Wyloguj",
-          travelInspirations: "Inspiracje podróżnicze",
-          noInspirations: "Brak inspiracji podróżniczych.",
-          inspiration: "Inspiracja",
-        addToMyTrips: "Dodaj do moich podróży",
-tripCopied: "Dodano inspirację do Twoich podróży.",
-couldNotCopyTrip: "Nie udało się dodać inspiracji.",
         },
       },
     },

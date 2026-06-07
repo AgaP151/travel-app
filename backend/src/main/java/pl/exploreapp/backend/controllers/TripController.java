@@ -44,6 +44,10 @@ public void inviteUserToTrip(
 ) {
     tripService.inviteUserToTrip(id, request);
 }
+@PostMapping("/{id}/copy")
+public Trip copyPublicDemoTrip(@PathVariable Long id) {
+    return tripService.copyPublicDemoTrip(id);
+}
 @DeleteMapping("/{id}/users")
 public void removeUserFromTrip(
         @PathVariable Long id,

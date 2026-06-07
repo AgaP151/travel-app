@@ -73,7 +73,9 @@ i18n.use(initReactI18next).init({
           travelInspirations: "Travel inspirations",
           noInspirations: "No travel inspirations.",
           inspiration: "Inspiration",
-                  
+                  addToMyTrips: "Add to my trips",
+tripCopied: "Inspiration added to your trips.",
+couldNotCopyTrip: "Could not add inspiration.",
         },
       },
     },
@@ -150,7 +152,9 @@ i18n.use(initReactI18next).init({
           travelInspirations: "Inspiracje podróżnicze",
           noInspirations: "Brak inspiracji podróżniczych.",
           inspiration: "Inspiracja",
-        
+        addToMyTrips: "Dodaj do moich podróży",
+tripCopied: "Dodano inspirację do Twoich podróży.",
+couldNotCopyTrip: "Nie udało się dodać inspiracji.",
         },
       },
     },

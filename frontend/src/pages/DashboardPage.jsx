@@ -1,7 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { addTrip, deleteTrip, getTrips, inviteUserToTrip, removeUserFromTrip } from "../services/tripService";
+import {
+  addTrip,
+  deleteTrip,
+  getTrips,
+  inviteUserToTrip,
+  removeUserFromTrip,
+  copyTripToMyTrips,
+} from "../services/tripService";
 import { getDestinationDetails } from "../services/destinationService";
 import { getTasks, addTask, toggleTask } from "../services/taskService";
 
@@ -76,7 +83,16 @@ const [inviteMessage, setInviteMessage] = useState("");
       alert(t("dashboard.couldNotAddTrip"));
     }
   }
-
+async function handleCopyTripToMyTrips(tripId) {
+  try {
+    const copiedTrip = await copyTripToMyTrips(tripId);
+    setTrips([...trips, copiedTrip]);
+    alert(t("dashboard.tripCopied"));
+  } catch (error) {
+    console.error(error);
+    alert(t("dashboard.couldNotCopyTrip"));
+  }
+}
   async function handleDeleteTrip(id) {
     try {
       await deleteTrip(id);
@@ -206,6 +222,13 @@ async function handleRemoveUserFromTrip() {
           <span className="trip-list__badge">
             {t("dashboard.inspiration")}
           </span>
+          <button
+  className="inspiration-card__copy"
+  type="button"
+  onClick={() => handleCopyTripToMyTrips(trip.id)}
+>
+  {t("dashboard.addToMyTrips")}
+</button>
         </li>
       ))}
     </ul>

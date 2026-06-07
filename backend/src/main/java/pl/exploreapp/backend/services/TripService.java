@@ -15,6 +15,8 @@ import pl.exploreapp.backend.models.User;
 import pl.exploreapp.backend.repositories.TripRepository;
 import pl.exploreapp.backend.repositories.UserRepository;
 import pl.exploreapp.backend.dto.InviteUserRequest;
+import pl.exploreapp.backend.models.Task;
+import pl.exploreapp.backend.repositories.TaskRepository;
 
 @Service
 public class TripService {
@@ -24,11 +26,18 @@ public class TripService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
     private final MailService mailService;
+    private final TaskRepository taskRepository;
 
-    public TripService(TripRepository tripRepository, UserRepository userRepository, MailService mailService) {
+    public TripService(
+            TripRepository tripRepository,
+            UserRepository userRepository,
+            MailService mailService,
+            TaskRepository taskRepository
+    ) {
         this.tripRepository = tripRepository;
         this.userRepository = userRepository;
         this.mailService = mailService;
+        this.taskRepository = taskRepository;
     }
 
     public List<Trip> getAllTrips() {
@@ -126,8 +135,8 @@ public class TripService {
             tripId
     );
 }
-@Transactional
-public void removeUserFromTrip(Long tripId, InviteUserRequest request) {
+    @Transactional
+    public void removeUserFromTrip(Long tripId, InviteUserRequest request) {
     User currentUser = getCurrentUser();
 
     boolean currentUserHasAccess = tripRepository.existsByTripIdAndUserId(
@@ -150,5 +159,47 @@ public void removeUserFromTrip(Long tripId, InviteUserRequest request) {
             userToRemove.getEmail(),
             tripId
     );
+}
+@Transactional
+public Trip copyPublicDemoTrip(Long tripId) {
+    User currentUser = getCurrentUser();
+
+    Trip sourceTrip = tripRepository.findById(tripId)
+            .orElseThrow(() -> new IllegalArgumentException("Trip does not exist"));
+
+    if (!Boolean.TRUE.equals(sourceTrip.getPublicDemo())) {
+        throw new IllegalArgumentException("Only public demo trips can be copied");
+    }
+
+    Trip copiedTrip = new Trip();
+    copiedTrip.setCategoryId(sourceTrip.getCategoryId());
+    copiedTrip.setTitle(sourceTrip.getTitle());
+    copiedTrip.setDestination(sourceTrip.getDestination());
+    copiedTrip.setStartDate(sourceTrip.getStartDate());
+    copiedTrip.setEndDate(sourceTrip.getEndDate());
+    copiedTrip.setDescription(sourceTrip.getDescription());
+    copiedTrip.setPrice(sourceTrip.getPrice());
+    copiedTrip.setArchived(false);
+    copiedTrip.setPublicDemo(false);
+
+    Trip savedTrip = tripRepository.save(copiedTrip);
+    tripRepository.addUserToTrip(savedTrip.getId(), currentUser.getId());
+
+    List<Task> sourceTasks = taskRepository.findByTripId(sourceTrip.getId());
+
+    List<Task> copiedTasks = sourceTasks.stream()
+            .map(task -> new Task(task.getTitle(), savedTrip))
+            .toList();
+
+    taskRepository.saveAll(copiedTasks);
+
+    logger.info(
+            "User {} copied public demo trip {} to private trip {}",
+            currentUser.getEmail(),
+            sourceTrip.getId(),
+            savedTrip.getId()
+    );
+
+    return savedTrip;
 }
 }

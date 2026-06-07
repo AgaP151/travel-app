@@ -76,3 +76,15 @@ export async function removeUserFromTrip(tripId, email) {
     throw new Error("Failed to remove user from trip");
   }
 }
+export async function copyTripToMyTrips(tripId) {
+  const response = await fetch(`${API_URL}/${tripId}/copy`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to copy trip");
+  }
+
+  return response.json();
+}

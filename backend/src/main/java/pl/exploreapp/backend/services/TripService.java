@@ -4,19 +4,22 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import pl.exploreapp.backend.dto.CreateTripRequest;
+import pl.exploreapp.backend.dto.InviteUserRequest;
+import pl.exploreapp.backend.dto.TripParticipantResponse;
+import pl.exploreapp.backend.models.Task;
 import pl.exploreapp.backend.models.Trip;
 import pl.exploreapp.backend.models.User;
+import pl.exploreapp.backend.repositories.TaskRepository;
 import pl.exploreapp.backend.repositories.TripRepository;
 import pl.exploreapp.backend.repositories.UserRepository;
-import pl.exploreapp.backend.dto.InviteUserRequest;
-import pl.exploreapp.backend.models.Task;
-import pl.exploreapp.backend.repositories.TaskRepository;
 
 @Service
 public class TripService {
@@ -86,120 +89,151 @@ public class TripService {
         tripRepository.deleteById(id);
     }
 
+    @Transactional
+    public void inviteUserToTrip(Long tripId, InviteUserRequest request) {
+        User currentUser = getCurrentUser();
+
+        boolean currentUserHasAccess = tripRepository.existsByTripIdAndUserId(
+                tripId,
+                currentUser.getId()
+        );
+
+        if (!currentUserHasAccess && !"ROLE_ADMIN".equals(currentUser.getRole())) {
+            throw new AccessDeniedException("You do not have access to this trip");
+        }
+
+        User invitedUser = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("User with this email does not exist"));
+
+        boolean invitedUserAlreadyAdded = tripRepository.existsByTripIdAndUserId(
+                tripId,
+                invitedUser.getId()
+        );
+
+        if (invitedUserAlreadyAdded) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "User is already assigned to this trip"
+            );
+        }
+
+        tripRepository.addUserToTrip(tripId, invitedUser.getId());
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new IllegalArgumentException("Trip does not exist"));
+
+        mailService.sendTripInviteEmail(
+                invitedUser.getEmail(),
+                trip.getTitle(),
+                currentUser.getEmail()
+        );
+
+        logger.info(
+                "User {} invited user {} to trip {}",
+                currentUser.getEmail(),
+                invitedUser.getEmail(),
+                tripId
+        );
+    }
+
+    @Transactional
+    public void removeUserFromTrip(Long tripId, InviteUserRequest request) {
+        User currentUser = getCurrentUser();
+
+        boolean currentUserHasAccess = tripRepository.existsByTripIdAndUserId(
+                tripId,
+                currentUser.getId()
+        );
+
+        if (!currentUserHasAccess && !"ROLE_ADMIN".equals(currentUser.getRole())) {
+            throw new AccessDeniedException("You do not have access to this trip");
+        }
+
+        User userToRemove = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("User with this email does not exist"));
+
+        tripRepository.removeUserFromTrip(tripId, userToRemove.getId());
+
+        logger.info(
+                "User {} removed user {} from trip {}",
+                currentUser.getEmail(),
+                userToRemove.getEmail(),
+                tripId
+        );
+    }
+
+    public List<TripParticipantResponse> getTripParticipants(Long tripId) {
+        User currentUser = getCurrentUser();
+
+        boolean currentUserHasAccess = tripRepository.existsByTripIdAndUserId(
+                tripId,
+                currentUser.getId()
+        );
+
+        boolean isPublicDemoTrip = tripRepository.isPublicDemoTrip(tripId);
+
+        if (!currentUserHasAccess && !isPublicDemoTrip && !"ROLE_ADMIN".equals(currentUser.getRole())) {
+            throw new AccessDeniedException("You do not have access to this trip");
+        }
+
+        return tripRepository.findParticipantsByTripId(tripId)
+                .stream()
+                .map(user -> new TripParticipantResponse(
+                        user.getId(),
+                        user.getName(),
+                        user.getEmail(),
+                        user.getRole()
+                ))
+                .toList();
+    }
+
+    @Transactional
+    public Trip copyPublicDemoTrip(Long tripId) {
+        User currentUser = getCurrentUser();
+
+        Trip sourceTrip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new IllegalArgumentException("Trip does not exist"));
+
+        if (!Boolean.TRUE.equals(sourceTrip.getPublicDemo())) {
+            throw new IllegalArgumentException("Only public demo trips can be copied");
+        }
+
+        Trip copiedTrip = new Trip();
+        copiedTrip.setCategoryId(sourceTrip.getCategoryId());
+        copiedTrip.setTitle(sourceTrip.getTitle());
+        copiedTrip.setDestination(sourceTrip.getDestination());
+        copiedTrip.setStartDate(sourceTrip.getStartDate());
+        copiedTrip.setEndDate(sourceTrip.getEndDate());
+        copiedTrip.setDescription(sourceTrip.getDescription());
+        copiedTrip.setPrice(sourceTrip.getPrice());
+        copiedTrip.setArchived(false);
+        copiedTrip.setPublicDemo(false);
+
+        Trip savedTrip = tripRepository.save(copiedTrip);
+        tripRepository.addUserToTrip(savedTrip.getId(), currentUser.getId());
+
+        List<Task> sourceTasks = taskRepository.findByTripId(sourceTrip.getId());
+
+        List<Task> copiedTasks = sourceTasks.stream()
+                .map(task -> new Task(task.getTitle(), savedTrip))
+                .toList();
+
+        taskRepository.saveAll(copiedTasks);
+
+        logger.info(
+                "User {} copied public demo trip {} to private trip {}",
+                currentUser.getEmail(),
+                sourceTrip.getId(),
+                savedTrip.getId()
+        );
+
+        return savedTrip;
+    }
+
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new AccessDeniedException("User not found"));
     }
-   @Transactional
-    public void inviteUserToTrip(Long tripId, InviteUserRequest request) {
-        User currentUser = getCurrentUser();
-
-        boolean currentUserHasAccess = tripRepository.existsByTripIdAndUserId(
-            tripId,
-            currentUser.getId()
-    );
-
-    if (!currentUserHasAccess && !"ROLE_ADMIN".equals(currentUser.getRole())) {
-        throw new AccessDeniedException("You do not have access to this trip");
-    }
-
-    User invitedUser = userRepository.findByEmail(request.getEmail())
-            .orElseThrow(() -> new IllegalArgumentException("User with this email does not exist"));
-
-    boolean invitedUserAlreadyAdded = tripRepository.existsByTripIdAndUserId(
-            tripId,
-            invitedUser.getId()
-    );
-
-    if (invitedUserAlreadyAdded) {
-        return;
-    }
-
-    tripRepository.addUserToTrip(tripId, invitedUser.getId());
-
-    Trip trip = tripRepository.findById(tripId)
-            .orElseThrow(() -> new IllegalArgumentException("Trip does not exist"));
-
-    mailService.sendTripInviteEmail(
-            invitedUser.getEmail(),
-            trip.getTitle(),
-            currentUser.getEmail()
-    );
-
-    logger.info(
-            "User {} invited user {} to trip {}",
-            currentUser.getEmail(),
-            invitedUser.getEmail(),
-            tripId
-    );
-}
-    @Transactional
-    public void removeUserFromTrip(Long tripId, InviteUserRequest request) {
-    User currentUser = getCurrentUser();
-
-    boolean currentUserHasAccess = tripRepository.existsByTripIdAndUserId(
-            tripId,
-            currentUser.getId()
-    );
-
-    if (!currentUserHasAccess && !"ROLE_ADMIN".equals(currentUser.getRole())) {
-        throw new AccessDeniedException("You do not have access to this trip");
-    }
-
-    User userToRemove = userRepository.findByEmail(request.getEmail())
-            .orElseThrow(() -> new IllegalArgumentException("User with this email does not exist"));
-
-    tripRepository.removeUserFromTrip(tripId, userToRemove.getId());
-
-    logger.info(
-            "User {} removed user {} from trip {}",
-            currentUser.getEmail(),
-            userToRemove.getEmail(),
-            tripId
-    );
-}
-@Transactional
-public Trip copyPublicDemoTrip(Long tripId) {
-    User currentUser = getCurrentUser();
-
-    Trip sourceTrip = tripRepository.findById(tripId)
-            .orElseThrow(() -> new IllegalArgumentException("Trip does not exist"));
-
-    if (!Boolean.TRUE.equals(sourceTrip.getPublicDemo())) {
-        throw new IllegalArgumentException("Only public demo trips can be copied");
-    }
-
-    Trip copiedTrip = new Trip();
-    copiedTrip.setCategoryId(sourceTrip.getCategoryId());
-    copiedTrip.setTitle(sourceTrip.getTitle());
-    copiedTrip.setDestination(sourceTrip.getDestination());
-    copiedTrip.setStartDate(sourceTrip.getStartDate());
-    copiedTrip.setEndDate(sourceTrip.getEndDate());
-    copiedTrip.setDescription(sourceTrip.getDescription());
-    copiedTrip.setPrice(sourceTrip.getPrice());
-    copiedTrip.setArchived(false);
-    copiedTrip.setPublicDemo(false);
-
-    Trip savedTrip = tripRepository.save(copiedTrip);
-    tripRepository.addUserToTrip(savedTrip.getId(), currentUser.getId());
-
-    List<Task> sourceTasks = taskRepository.findByTripId(sourceTrip.getId());
-
-    List<Task> copiedTasks = sourceTasks.stream()
-            .map(task -> new Task(task.getTitle(), savedTrip))
-            .toList();
-
-    taskRepository.saveAll(copiedTasks);
-
-    logger.info(
-            "User {} copied public demo trip {} to private trip {}",
-            currentUser.getEmail(),
-            sourceTrip.getId(),
-            savedTrip.getId()
-    );
-
-    return savedTrip;
-}
 }

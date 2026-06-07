@@ -8,6 +8,7 @@ import {
   inviteUserToTrip,
   removeUserFromTrip,
   copyTripToMyTrips,
+  getTripParticipants,
 } from "../services/tripService";
 import { getDestinationDetails } from "../services/destinationService";
 import { getTasks, addTask, toggleTask } from "../services/taskService";
@@ -36,6 +37,9 @@ function DashboardPage() {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteMessage, setInviteMessage] = useState("");
+
+  const [participants, setParticipants] = useState([]);
+  const [participantsError, setParticipantsError] = useState("");
 
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminError, setAdminError] = useState("");
@@ -140,6 +144,23 @@ function DashboardPage() {
     return diffInDays > 5;
   }
 
+  async function loadTripParticipants(tripId) {
+    try {
+      const participantsData = await getTripParticipants(tripId);
+      setParticipants(participantsData);
+      setParticipantsError("");
+    } catch (error) {
+      console.error(error);
+      setParticipants([]);
+      setParticipantsError(
+        t(
+          "dashboard.couldNotLoadParticipants",
+          "Nie udało się pobrać uczestników."
+        )
+      );
+    }
+  }
+
   async function handleAddTrip(e) {
     e.preventDefault();
 
@@ -206,6 +227,8 @@ function DashboardPage() {
         setDestinationDetails(null);
         setSelectedTripId(null);
         setTasks([]);
+        setParticipants([]);
+        setParticipantsError("");
       }
     } catch (error) {
       console.error(error);
@@ -220,6 +243,8 @@ function DashboardPage() {
     setSelectedTripId(tripId);
     setTasks([]);
     setInviteMessage("");
+    setParticipants([]);
+    setParticipantsError("");
 
     try {
       const detailsData = await getDestinationDetails(destination);
@@ -238,6 +263,8 @@ function DashboardPage() {
       console.error(error);
       setTasks([]);
     }
+
+    await loadTripParticipants(tripId);
   }
 
   async function handleAddTask(e) {
@@ -275,21 +302,47 @@ function DashboardPage() {
   }
 
   async function handleInviteUser(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!selectedTripId || !inviteEmail.trim() || selectedTripIsPublicDemo) {
-      return;
-    }
+  if (!selectedTripId || !inviteEmail.trim() || selectedTripIsPublicDemo) {
+    return;
+  }
 
-    try {
-      await inviteUserToTrip(selectedTripId, inviteEmail.trim());
-      setInviteMessage(t("dashboard.userInvited"));
-      setInviteEmail("");
-    } catch (error) {
+  const normalizedEmail = inviteEmail.trim().toLowerCase();
+
+  const userAlreadyAssigned = participants.some(
+    (participant) => participant.email.toLowerCase() === normalizedEmail
+  );
+
+  if (userAlreadyAssigned) {
+    setInviteMessage(
+      t(
+        "dashboard.userAlreadyAssigned",
+        "Ten użytkownik jest już uczestnikiem tej podróży."
+      )
+    );
+    return;
+  }
+
+  try {
+    await inviteUserToTrip(selectedTripId, inviteEmail.trim());
+    setInviteMessage(t("dashboard.userInvited"));
+    setInviteEmail("");
+    await loadTripParticipants(selectedTripId);
+  } catch (error) {
+    if (error.message === "USER_ALREADY_ASSIGNED") {
+      setInviteMessage(
+        t(
+          "dashboard.userAlreadyAssigned",
+          "Ten użytkownik jest już uczestnikiem tej podróży."
+        )
+      );
+    } else {
       console.error(error);
       setInviteMessage(t("dashboard.couldNotInvite"));
     }
   }
+}
 
   async function handleRemoveUserFromTrip() {
     if (!selectedTripId || !inviteEmail.trim() || selectedTripIsPublicDemo) {
@@ -300,6 +353,7 @@ function DashboardPage() {
       await removeUserFromTrip(selectedTripId, inviteEmail.trim());
       setInviteMessage(t("dashboard.userRemoved"));
       setInviteEmail("");
+      await loadTripParticipants(selectedTripId);
     } catch (error) {
       console.error(error);
       setInviteMessage(t("dashboard.couldNotRemove"));
@@ -600,6 +654,43 @@ function DashboardPage() {
                       </p>
                     </div>
                   </div>
+                )}
+              </div>
+
+              <div className="trip-participants-section">
+                <h3>
+                  {t("dashboard.tripParticipants", "Uczestnicy podróży")}
+                </h3>
+
+                {participantsError && <p>{participantsError}</p>}
+
+                {participants.length === 0 ? (
+                  <p>
+                    {selectedTripIsPublicDemo
+                      ? t(
+                          "dashboard.noParticipantsForPublicDemo",
+                          "Publiczna inspiracja nie ma przypisanych uczestników."
+                        )
+                      : t(
+                          "dashboard.noParticipants",
+                          "Brak uczestników przypisanych do tej podróży."
+                        )}
+                  </p>
+                ) : (
+                  <ul className="trip-participants-list">
+                    {participants.map((participant) => (
+                      <li
+                        key={participant.id}
+                        className="trip-participants-list__item"
+                      >
+                        <strong>{participant.email}</strong>
+                        <span>{participant.name || "-"}</span>
+                        {participant.role === "ROLE_ADMIN" && (
+                          <small>ADMIN</small>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
 

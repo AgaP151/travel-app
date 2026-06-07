@@ -12,7 +12,9 @@ function DashboardPage() {
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsError, setDetailsError] = useState("");
   const [trips, setTrips] = useState([]);
-  const [newTrip, setNewTrip] = useState({
+  const myTrips = trips.filter((trip) => !trip.publicDemo);
+  const demoTrips = trips.filter((trip) => trip.publicDemo);
+   const [newTrip, setNewTrip] = useState({
     title: "",
     destination: "",
     description: "",
@@ -24,7 +26,8 @@ function DashboardPage() {
   const [newTaskTitle, setNewTaskTitle] = useState("");
  const [inviteEmail, setInviteEmail] = useState("");
 const [inviteMessage, setInviteMessage] = useState("");
-
+ const selectedTrip = trips.find((trip) => trip.id === selectedTripId);
+  const selectedTripIsPublicDemo = selectedTrip?.publicDemo === true;
   useEffect(() => {
     async function loadTrips() {
       try {
@@ -182,50 +185,32 @@ async function handleRemoveUserFromTrip() {
   <p>{t("dashboard.heroDescription")}</p>
 </section>
 
-      <section className="dashboard-card">
-        <h2>{t("dashboard.addNewTrip")}</h2>
+    
+<section className="dashboard-card">
+  <h2>{t("dashboard.travelInspirations")}</h2>
 
-        <form className="trip-form" onSubmit={handleAddTrip}>
-          <input
-            className="trip-form__field"
-            type="text"
-            placeholder={t("dashboard.title")}
-            value={newTrip.title}
-            onChange={(e) => setNewTrip({ ...newTrip, title: e.target.value })}
-          />
-
-          <input
-            className="trip-form__field"
-            type="text"
-            placeholder={t("dashboard.destination")}
-            value={newTrip.destination}
-            onChange={(e) =>
-              setNewTrip({ ...newTrip, destination: e.target.value })
-            }
-          />
-
-          <textarea
-            className="trip-form__field"
-            placeholder={t("dashboard.description")}
-            value={newTrip.description}
-            onChange={(e) =>
-              setNewTrip({ ...newTrip, description: e.target.value })
-            }
-          />
-
-          <input
-            className="trip-form__field"
-            type="number"
-            placeholder={t("dashboard.price")}
-            value={newTrip.price}
-            onChange={(e) => setNewTrip({ ...newTrip, price: e.target.value })}
-          />
-
-          <button className="trip-form__button " type="submit">
-            {t("dashboard.addTrip")}
+  {demoTrips.length === 0 ? (
+    <p>{t("dashboard.noInspirations")}</p>
+  ) : (
+    <ul>
+      {demoTrips.map((trip) => (
+        <li key={trip.id} className="trip-list__item">
+          <button
+            className="trip-list__details"
+            type="button"
+            onClick={() => handleSelectTrip(trip.id, trip.destination)}
+          >
+            <strong>{trip.title}</strong> — {trip.destination}
           </button>
-        </form>
-      </section>
+
+          <span className="trip-list__badge">
+            {t("dashboard.inspiration")}
+          </span>
+        </li>
+      ))}
+    </ul>
+  )}
+</section>
 
       <section className="dashboard-card">
         <h2>{t("dashboard.yourTrips")}</h2>
@@ -375,6 +360,7 @@ async function handleRemoveUserFromTrip() {
                     placeholder="Add item to pack or task..."
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
+                    disabled={selectedTripIsPublicDemo}
                     className="task-form__input"
                   />
                   <button type="submit" className="task-form__button">
@@ -395,6 +381,7 @@ async function handleRemoveUserFromTrip() {
                             type="checkbox"
                             checked={task.isCompleted}
                             onChange={() => handleToggleTask(task.id)}
+                            disabled={selectedTripIsPublicDemo}
                             className="task-list__checkbox"
                           />
                           <span

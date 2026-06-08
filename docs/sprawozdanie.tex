@@ -1,0 +1,331 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{geometry}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+
+\geometry{margin=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\title{Sprawozdanie z pracy projektowej\\\large Social Trip Planner / travel-app}
+\author{Zespół projektowy}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Opis funkcjonalny systemu}
+
+Projekt \textit{Social Trip Planner} jest aplikacją webową służącą do planowania podróży. System umożliwia użytkownikowi utworzenie konta, zalogowanie się, zarządzanie własnymi podróżami oraz korzystanie z publicznych inspiracji podróżniczych.
+
+Aplikacja pozwala na:
+\begin{itemize}
+\item rejestrację i logowanie użytkownika,
+\item uwierzytelnianie z użyciem tokenu JWT,
+\item tworzenie własnych podróży,
+\item wyświetlanie listy podróży użytkownika,
+\item usuwanie podróży,
+\item korzystanie z publicznych inspiracji podróżniczych,
+\item kopiowanie inspiracji do własnych podróży,
+\item obsługę listy uczestników podróży,
+\item korzystanie z checklisty zadań,
+\item przełączanie języka aplikacji między polskim i angielskim,
+\item przełączanie motywu jasnego i ciemnego,
+\item pobieranie dodatkowych informacji o kierunku podróży z zewnętrznych API.
+\end{itemize}
+
+System rozróżnia prywatne podróże użytkownika oraz publiczne inspiracje. Inspiracje są widoczne dla wszystkich użytkowników, natomiast prywatne podróże są przypisane do konkretnego konta. Dzięki temu użytkownik może przeglądać gotowe propozycje wyjazdów i skopiować wybraną inspirację do własnej listy podróży.
+
+\section{Opis technologiczny}
+
+Aplikacja została podzielona na część frontendową, backendową oraz bazę danych.
+
+\subsection{Frontend}
+
+Frontend został wykonany w technologii React z użyciem narzędzia Vite. Interfejs użytkownika korzysta z komponentów React, routingu po stronie klienta oraz asynchronicznej komunikacji z backendem przez Fetch API.
+
+Wykorzystane technologie frontendowe:
+\begin{itemize}
+\item React,
+\item Vite,
+\item JavaScript,
+\item SCSS,
+\item React Router,
+\item i18next.
+\end{itemize}
+
+React Router odpowiada za obsługę tras aplikacji, m.in. stron logowania, rejestracji i panelu użytkownika. Aplikacja korzysta również z mechanizmu chronionych tras, dzięki czemu panel użytkownika jest dostępny dopiero po zalogowaniu.
+
+\subsection{Backend}
+
+Backend został wykonany w języku Java 17 z użyciem frameworka Spring Boot. Aplikacja korzysta z architektury warstwowej: kontrolery obsługują żądania HTTP, serwisy realizują logikę biznesową, repozytoria odpowiadają za komunikację z bazą danych, a encje reprezentują dane systemu.
+
+Wykorzystane technologie backendowe:
+\begin{itemize}
+\item Java 17,
+\item Spring Boot,
+\item Spring MVC,
+\item Spring Security,
+\item JWT,
+\item Spring Data JPA,
+\item Hibernate,
+\item Maven,
+\item Spring Cache,
+\item SLF4J Logger.
+\end{itemize}
+
+Uwierzytelnianie zostało zrealizowane z użyciem tokenów JWT. Po poprawnym logowaniu użytkownik otrzymuje token, który jest następnie wysyłany w nagłówku żądań do zabezpieczonych endpointów.
+
+\subsection{Baza danych}
+
+Do przechowywania danych wykorzystano PostgreSQL. Schemat bazy danych jest zarządzany przy pomocy Flyway, co pozwala kontrolować kolejne migracje bazy danych i zachować spójność środowisk lokalnego oraz produkcyjnego.
+
+W projekcie wykorzystano m.in. tabele:
+\begin{itemize}
+\item \texttt{users} -- użytkownicy systemu,
+\item \texttt{trips} -- podróże,
+\item \texttt{trip_user} -- relacja użytkowników i podróży,
+\item \texttt{tasks} -- zadania/checklista,
+\item \texttt{categories} -- kategorie podróży.
+\end{itemize}
+
+Mapowanie obiektowo-relacyjne zostało wykonane przy pomocy JPA/Hibernate.
+
+\subsection{Integracje zewnętrzne}
+
+Aplikacja korzysta z zewnętrznych API do pobierania dodatkowych informacji o kierunku podróży:
+\begin{itemize}
+\item zdjęcia kierunków podróży,
+\item informacje pogodowe,
+\item informacje walutowe.
+\end{itemize}
+
+Klucze API nie są przechowywane w repozytorium. Są przekazywane przez zmienne środowiskowe.
+
+\subsection{Deployment}
+
+Aplikacja została wdrożona w środowisku produkcyjnym:
+\begin{itemize}
+\item frontend: Vercel,
+\item backend: Render,
+\item baza danych: PostgreSQL na Renderze.
+\end{itemize}
+
+Adres wdrożonego frontendu:
+\begin{center}
+\url{https://travel-app-mocha-delta.vercel.app}
+\end{center}
+
+Adres backendu:
+\begin{center}
+\url{https://travel-app-api-lzua.onrender.com}
+\end{center}
+
+Wejście na główny adres backendu może zwracać komunikat \texttt{403 Forbidden}, ponieważ endpointy są zabezpieczone przez Spring Security. Właściwe endpointy API są dostępne pod ścieżką \texttt{/api}.
+
+\section{Wdrożone zagadnienia kwalifikacyjne}
+
+\begin{longtable}{|p{0.28\textwidth}|p{0.55\textwidth}|p{0.12\textwidth}|}
+\hline
+\textbf{Zagadnienie} & \textbf{Realizacja w projekcie} & \textbf{Status} \
+\hline
+Framework MVC & Backend wykonany w Spring Boot i Spring MVC. & Tak \
+\hline
+Framework CSS & Aplikacja korzysta ze stylowania SCSS oraz elementów Tailwind. & Tak \
+\hline
+Baza danych & Do projektu dołączono PostgreSQL. & Tak \
+\hline
+Cache & Zastosowano Spring Cache dla danych dotyczących kierunku podróży. & Tak \
+\hline
+Dependency manager & Backend korzysta z Maven, frontend z npm. & Tak \
+\hline
+HTML & Szkielet aplikacji generowany jest przez React i osadzony w HTML. & Tak \
+\hline
+CSS & Interfejs został ostylowany z użyciem SCSS. & Tak \
+\hline
+JavaScript & Frontend wykorzystuje JavaScript i React do obsługi interakcji. & Tak \
+\hline
+Routing & Zastosowano React Router oraz adresy typu pretty URLs. & Tak \
+\hline
+ORM & Wykorzystano JPA/Hibernate. & Tak \
+\hline
+Uwierzytelnianie & Zaimplementowano logowanie, rejestrację, hashowanie haseł oraz JWT. & Tak \
+\hline
+Lokalizacja & Aplikacja umożliwia przełączanie języka PL/EN z użyciem i18next. & Tak \
+\hline
+Mailing & Przygotowano serwis mailingowy po stronie backendu. Wysyłka wymaga poprawnej konfiguracji SMTP. & Częściowo \
+\hline
+Formularze & Zaimplementowano formularze logowania, rejestracji i dodawania podróży. & Tak \
+\hline
+Asynchroniczne interakcje & Frontend komunikuje się z backendem asynchronicznie przez Fetch API. & Tak \
+\hline
+Konsumpcja API & Aplikacja korzysta z zewnętrznych API dla zdjęć, pogody i walut. & Tak \
+\hline
+Publikacja API & Backend wystawia własne REST API. & Tak \
+\hline
+RWD & Interfejs jest responsywny i dostosowany do różnych szerokości ekranu. & Tak \
+\hline
+Logger & W backendzie użyto loggera do rejestrowania ważnych akcji systemowych. & Tak \
+\hline
+Deployment & Frontend wdrożono na Vercel, backend i bazę danych na Renderze. & Tak \
+\hline
+\end{longtable}
+
+\section{Instrukcja lokalnego uruchomienia systemu}
+
+\subsection{Wymagania}
+
+Do lokalnego uruchomienia projektu wymagane są:
+\begin{itemize}
+\item Java 17,
+\item Node.js,
+\item npm,
+\item Docker,
+\item Git Bash lub inny terminal obsługujący skrypty Bash.
+\end{itemize}
+
+\subsection{Uruchomienie bazy danych}
+
+W katalogu głównym projektu należy uruchomić:
+
+\begin{verbatim}
+docker compose up -d
+\end{verbatim}
+
+Nie należy używać polecenia:
+
+\begin{verbatim}
+docker compose down -v
+\end{verbatim}
+
+jeżeli lokalne dane w bazie mają zostać zachowane, ponieważ opcja \texttt{-v} usuwa wolumeny Dockera.
+
+\subsection{Uruchomienie backendu}
+
+Backend korzysta z pliku \texttt{backend/.env}, który nie jest commitowany do repozytorium. Plik powinien zawierać zmienne środowiskowe, m.in.:
+
+\begin{verbatim}
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/travel_app
+SPRING_DATASOURCE_USERNAME=travel_user
+SPRING_DATASOURCE_PASSWORD=your_password
+JWT_SECRET=your_long_jwt_secret
+PEXELS_API_KEY=your_pexels_key
+WEATHER_API_KEY=your_weather_key
+CURRENCY_API_KEY=your_currency_key
+\end{verbatim}
+
+Backend można uruchomić poleceniem:
+
+\begin{verbatim}
+./run-backend.sh
+\end{verbatim}
+
+Lokalny adres backendu:
+
+\begin{verbatim}
+http://localhost:8080
+\end{verbatim}
+
+\subsection{Uruchomienie frontendu}
+
+W katalogu \texttt{frontend} należy wykonać:
+
+\begin{verbatim}
+npm install
+npm run dev
+\end{verbatim}
+
+Lokalny adres frontendu:
+
+\begin{verbatim}
+http://localhost:5173
+\end{verbatim}
+
+Przykładowa zmienna środowiskowa dla frontendu:
+
+\begin{verbatim}
+VITE_API_URL=http://localhost:8080/api
+\end{verbatim}
+
+\section{Instrukcja zdalnego uruchomienia systemu}
+
+Wdrożona aplikacja jest dostępna pod adresem:
+
+\begin{center}
+\url{https://travel-app-mocha-delta.vercel.app}
+\end{center}
+
+Backend działa jako usługa Render pod adresem:
+
+\begin{center}
+\url{https://travel-app-api-lzua.onrender.com}
+\end{center}
+
+W konfiguracji produkcyjnej frontend korzysta ze zmiennej:
+
+\begin{verbatim}
+VITE_API_URL=https://travel-app-api-lzua.onrender.com/api
+\end{verbatim}
+
+Backend na Renderze korzysta ze zmiennych środowiskowych:
+\begin{itemize}
+\item \texttt{SPRING_DATASOURCE_URL},
+\item \texttt{SPRING_DATASOURCE_USERNAME},
+\item \texttt{SPRING_DATASOURCE_PASSWORD},
+\item \texttt{JWT_SECRET},
+\item \texttt{PEXELS_API_KEY},
+\item \texttt{WEATHER_API_KEY},
+\item \texttt{CURRENCY_API_KEY},
+\item \texttt{PORT=8080}.
+\end{itemize}
+
+Sekrety i klucze API nie są przechowywane w repozytorium.
+
+\section{Przykładowe endpointy API}
+
+\begin{longtable}{|p{0.18\textwidth}|p{0.35\textwidth}|p{0.37\textwidth}|}
+\hline
+\textbf{Metoda} & \textbf{Endpoint} & \textbf{Opis} \
+\hline
+POST & \texttt{/api/auth/register} & Rejestracja użytkownika. \
+\hline
+POST & \texttt{/api/auth/login} & Logowanie użytkownika. \
+\hline
+GET & \texttt{/api/trips} & Pobranie podróży użytkownika i inspiracji. \
+\hline
+POST & \texttt{/api/trips} & Dodanie nowej podróży. \
+\hline
+DELETE & \texttt{/api/trips/{id}} & Usunięcie podróży. \
+\hline
+POST & \texttt{/api/trips/{id}/copy} & Skopiowanie inspiracji do własnych podróży. \
+\hline
+GET & \texttt{/api/destinations/details?query=...} & Pobranie informacji o kierunku podróży. \
+\hline
+\end{longtable}
+
+\section{Wnioski projektowe}
+
+Projekt pozwolił na praktyczne połączenie wielu technologii webowych w jednej aplikacji. Najważniejszym elementem było zintegrowanie frontendu React z backendem Spring Boot oraz bazą danych PostgreSQL. Duże znaczenie miało także poprawne wdrożenie aplikacji na zewnętrznych platformach oraz konfiguracja zmiennych środowiskowych.
+
+W trakcie pracy szczególnie istotne okazały się:
+\begin{itemize}
+\item poprawna konfiguracja CORS pomiędzy frontendem i backendem,
+\item prawidłowe ustawienie adresu API w zmiennej \texttt{VITE_API_URL},
+\item zabezpieczenie sekretów i kluczy API poza repozytorium,
+\item zarządzanie schematem bazy danych przez Flyway,
+\item rozróżnienie prywatnych podróży użytkownika i publicznych inspiracji.
+\end{itemize}
+
+Aplikacja spełnia główne założenia projektu i została wdrożona w środowisku produkcyjnym. Możliwe dalsze rozszerzenia obejmują m.in. rozbudowany panel administracyjny, pełną konfigurację wysyłki maili, testy automatyczne oraz dokumentację API w Swagger/OpenAPI.
+
+\end{document}
